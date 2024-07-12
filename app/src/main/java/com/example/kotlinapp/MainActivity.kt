@@ -10,19 +10,23 @@ import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
 import android.util.Log
-import android.net.Uri
 import org.json.JSONObject
-import androidx.core.net.toUri
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView;
+import android.view.View
+import android.view.LayoutInflater
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val textView = findViewById<TextView>(R.id.response)
+        val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
 
         val client = OkHttpClient()
-        val url = "https://pokeapi.co/api/v2/pokemon?limit=1"
+        val limit: Int = 20
+        val url = "https://pokeapi.co/api/v2/pokemon?limit=$limit"
         val request = Request.Builder()
             .url(url)
             .build()
@@ -35,12 +39,16 @@ class MainActivity : AppCompatActivity() {
                 override fun onResponse(call: Call, response: Response) {
                     if (response.isSuccessful) {
                         runOnUiThread {
+                            val names: List<String>
+
                             val json = JSONObject(response.body!!.string())
                             val results = json.getJSONArray("results")
-                            val name = results.getJSONObject(0).getString("name")
 
-                            val pokemon = Pokemon(name)
-                            textView.text = pokemon.name
+                            names = List(results.length()) {
+                                results.getJSONObject(it).getString("name")
+                            }
+
+                            recyclerView.adapter = PokemonAdapter(names)
                         }
                     }
                 }
@@ -51,7 +59,4 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-class Pokemon(
-    val name: String
-)
 
