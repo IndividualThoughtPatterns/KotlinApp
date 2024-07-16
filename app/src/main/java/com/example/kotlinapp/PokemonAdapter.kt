@@ -6,11 +6,14 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class PokemonAdapter(private val names: List<String>) :
+class PokemonAdapter() :
     RecyclerView.Adapter<PokemonAdapter.Viewholder>() {
 
     class Viewholder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val pokemonNameTV = itemView.findViewById<TextView>(R.id.pokemonNameTV)
+        val pokemonName_textView = itemView.findViewById<TextView>(R.id.pokemonName_textView)
+        fun bind(pokemon: Pokemon) {
+            pokemonName_textView.text = pokemon.name
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Viewholder {
@@ -21,10 +24,16 @@ class PokemonAdapter(private val names: List<String>) :
     }
 
     override fun getItemCount(): Int {
-        return names.size
+        return pokemons.size
     }
 
     override fun onBindViewHolder(holder: Viewholder, position: Int) {
-        holder.pokemonNameTV.text = names[position]
+        holder.bind(pokemons[position])
+    }
+
+    private lateinit var pokemons: List<Pokemon>
+
+    fun setPokemons(pokemonList: List<Pokemon>) {
+        pokemons = pokemonList
     }
 }
