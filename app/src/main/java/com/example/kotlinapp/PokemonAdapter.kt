@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import android.util.Log
 
 class PokemonAdapter() :
     RecyclerView.Adapter<PokemonAdapter.Viewholder>() {
@@ -31,9 +32,10 @@ class PokemonAdapter() :
         holder.bind(pokemons[position])
     }
 
-    private lateinit var pokemons: List<Pokemon>
+    private var pokemons: List<Pokemon> = emptyList<Pokemon>()
 
     fun setPokemons(pokemonList: List<Pokemon>) {
         pokemons = pokemonList
+        notifyDataSetChanged()
     }
 }

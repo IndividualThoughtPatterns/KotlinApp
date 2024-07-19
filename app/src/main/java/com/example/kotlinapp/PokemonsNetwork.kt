@@ -17,7 +17,6 @@ class PokemonsNetwork {
         onResult: (List<Pokemon>) -> Unit,
         onError: () -> Unit
     ) {
-        lateinit var pokemons: List<Pokemon>
 
         val url = "https://pokeapi.co/api/v2/pokemon?limit=$limit"
         val request = Request.Builder()
@@ -39,7 +38,7 @@ class PokemonsNetwork {
                         results.getJSONObject(it).getString("name")
                     }
 
-                    pokemons = names.map { Pokemon(name = it) }
+                    val pokemons = names.map { Pokemon(name = it) }
                     onResult(pokemons)
                 } else onError()
             }

@@ -20,13 +20,13 @@ class MainActivity : AppCompatActivity() {
 
         PokemonsNetwork().getPokemons(
             limit,
-            fun(pokemons) {
+            onResult = { pokemons ->
                 runOnUiThread {
-                    adapter.setPokemons(pokemons)
                     recyclerView.adapter = adapter
+                    adapter.setPokemons(pokemons)
                 }
             },
-            fun() {
+            onError = {
                 runOnUiThread {
                     Toast.makeText(this, "Ошибка сети", Toast.LENGTH_LONG).show()
                 }
