@@ -36,7 +36,6 @@ class PokemonListFragment : Fragment() {
             val bundle = Bundle()
 
             bundle.putString("name", pokemonName)
-            Log.d("mydebug", "from pokemonList $pokemonName")
 
             parentFragmentManager
                 .beginTransaction()

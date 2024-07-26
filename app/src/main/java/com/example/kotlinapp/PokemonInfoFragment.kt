@@ -23,7 +23,7 @@ class PokemonInfoFragment : Fragment() {
         binding = FragmentInfoBinding.inflate(inflater)
         val args: Bundle = requireArguments()
         val name = args.getString("name")
-        Log.d("mydebug", "from info $name")
+
         binding.pokemonInfoNameTextView.setText(name)
 
         return binding.root

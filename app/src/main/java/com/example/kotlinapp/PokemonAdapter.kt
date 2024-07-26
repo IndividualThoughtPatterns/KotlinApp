@@ -34,7 +34,7 @@ class PokemonAdapter(val onPokemonClick: (pokemonName: String) -> Unit) :
         holder.bind(pokemons[position])
         holder.itemView.setOnClickListener {
             val name = this.pokemons[position].name
-            Log.d("mydebug", "from adapter $name")
+
             onPokemonClick(name)
         }
     }
