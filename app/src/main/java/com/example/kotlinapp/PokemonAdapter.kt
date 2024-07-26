@@ -1,13 +1,13 @@
 package com.example.kotlinapp
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import android.util.Log
 
-class PokemonAdapter() :
+class PokemonAdapter(val onPokemonClick: (pokemonName: String) -> Unit) :
     RecyclerView.Adapter<PokemonAdapter.Viewholder>() {
 
     class Viewholder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -18,6 +18,7 @@ class PokemonAdapter() :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Viewholder {
+        Log.d("adapter", "onCreate")
         val itemView =
             LayoutInflater.from(parent.context)
                 .inflate(R.layout.pokemon_element, parent, false)
@@ -29,12 +30,18 @@ class PokemonAdapter() :
     }
 
     override fun onBindViewHolder(holder: Viewholder, position: Int) {
+        Log.d("adapter", "onBind $position")
         holder.bind(pokemons[position])
+        holder.itemView.setOnClickListener {
+            val name = this.pokemons[position].name
+            Log.d("mydebug", "from adapter $name")
+            onPokemonClick(name)
+        }
     }
 
     private var pokemons: List<Pokemon> = emptyList<Pokemon>()
-
     fun setPokemons(pokemonList: List<Pokemon>) {
+        Log.d("adapter", "setPokemons")
         pokemons = pokemonList
         notifyDataSetChanged()
     }

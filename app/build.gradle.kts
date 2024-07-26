@@ -33,6 +33,9 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
@@ -47,4 +50,8 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.google.code.gson:gson:2.11.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+
+    val fragment_version = "1.8.1"
+    implementation("androidx.fragment:fragment-ktx:$fragment_version")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4")
 }
