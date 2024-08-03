@@ -72,25 +72,24 @@ class PokemonsNetwork {
                         .getString("front_default")
 
                     val types = json.getJSONArray("types")
-                    val typeNames: MutableList<String> = mutableListOf<String>()
+                    var typeNames = "| "
 
                     for (i in 0 until types.length()) {
-                        typeNames.add(
-                            types.getJSONObject(i)
+                        typeNames += types.getJSONObject(i)
                                 .getJSONObject("type")
-                                .getString("name")
-                        )
+                                .getString("name") + " | "
                     }
 
                     val abilities = json.getJSONArray("abilities")
-                    val abilityNames: MutableList<String> = mutableListOf<String>()
+                    var abilityNames = "Abilities: "
 
                     for (i in 0 until abilities.length()) {
-                        abilityNames.add(
-                            abilities.getJSONObject(i)
+                        abilityNames += abilities.getJSONObject(i)
                                 .getJSONObject("ability")
                                 .getString("name")
-                        )
+
+                        if (i != abilities.length() - 1)
+                            abilityNames += ", "
                     }
 
                     val height = json.getString("height").toInt().toString()

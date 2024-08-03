@@ -32,8 +32,8 @@ class PokemonInfoFragment : Fragment() {
         val defense = "defense: ${args.getString("defense")}"
         val attack = "attack: ${args.getString("attack")}"
         val speed = "speed: ${args.getString("speed")}"
-        val types = args.getSerializable("types")
-        val abilities = args.getSerializable("abilities")
+        val types = args.getString("types")
+        val abilities = args.getString("abilities")
 
         binding.pokemonInfoNameTextView.setText(name)
         binding.pokemonInfoHeightTextView.setText(height)
@@ -42,6 +42,8 @@ class PokemonInfoFragment : Fragment() {
         binding.pokemonInfoDefenseTextView.setText(defense)
         binding.pokemonInfoAttackTextView.setText(attack)
         binding.pokemonInfoSpeedTextView.setText(speed)
+        binding.pokemonInfoTypesTextView.setText(types)
+        binding.pokemonInfoAbilitiesTextView.setText(abilities)
 
         Glide.with(binding.avatarImageView)
             .load(sprite)
