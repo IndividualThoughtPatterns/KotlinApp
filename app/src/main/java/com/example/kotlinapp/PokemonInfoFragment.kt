@@ -15,9 +15,7 @@ class PokemonInfoFragment : Fragment() {
     private val binding get() = _binding!!
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentInfoBinding.inflate(inflater)
         return binding.root
@@ -25,7 +23,7 @@ class PokemonInfoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val args: Bundle = requireArguments()
-        val pokemon =  args.getSerializable("pokemon") as Pokemon
+        val pokemon = args.getSerializable("pokemon") as Pokemon
 
         var typeNames = "| "
         for (i in 0 until pokemon.types.size) {
@@ -34,13 +32,13 @@ class PokemonInfoFragment : Fragment() {
         var abilityNames = "Abilities: "
         for (i in 0 until pokemon.abilities.size) {
             abilityNames += pokemon.abilities[i]
-            if (i != pokemon.abilities.size - 1)
-                abilityNames += ", "
+            if (i != pokemon.abilities.size - 1) abilityNames += ", "
         }
 
         binding.pokemonInfoNameTextView.setText(
-            pokemon.name.substring(0, 1).uppercase() +
-            pokemon.name.substring(1, pokemon.name.length)
+            pokemon.name.substring(0, 1).uppercase() + pokemon.name.substring(
+                1, pokemon.name.length
+            )
         )
         binding.pokemonInfoHeightTextView.setText("Height: ${pokemon.height} decimetres")
         binding.pokemonInfoWeightTextView.setText("Weight: ${pokemon.weight} hectograms")
@@ -51,9 +49,7 @@ class PokemonInfoFragment : Fragment() {
         binding.pokemonInfoTypesTextView.setText(typeNames)
         binding.pokemonInfoAbilitiesTextView.setText(abilityNames)
 
-        Glide.with(binding.avatarImageView)
-            .load(pokemon.sprite)
-            .into(binding.avatarImageView)
+        Glide.with(binding.avatarImageView).load(pokemon.sprite).into(binding.avatarImageView)
     }
 
     override fun onDestroyView() {

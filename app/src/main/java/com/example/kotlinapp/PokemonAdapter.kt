@@ -2,9 +2,7 @@ package com.example.kotlinapp
 
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinapp.databinding.PokemonElementBinding
 import com.bumptech.glide.Glide
@@ -19,12 +17,12 @@ class PokemonAdapter(val onPokemonClick: (pokemon: Pokemon) -> Unit) :
         fun bind(pokemon: Pokemon) {
             item = pokemon
             binding.pokemonNameTextView.text =
-                pokemon.name.substring(0, 1).uppercase() +
-                        pokemon.name.substring(1, pokemon.name.length)
+                pokemon.name.substring(0, 1).uppercase() + pokemon.name.substring(
+                    1,
+                    pokemon.name.length
+                )
 
-            Glide.with(binding.avatarImageView)
-                .load(item?.sprite)
-                .into(binding.avatarImageView)
+            Glide.with(binding.avatarImageView).load(item?.sprite).into(binding.avatarImageView)
         }
 
         init {

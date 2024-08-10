@@ -2,7 +2,7 @@ package com.example.kotlinapp
 
 import java.io.Serializable
 
-class Pokemon (
+class Pokemon(
     val name: String,
     val sprite: String,
     var types: MutableList<String>,
