@@ -35,17 +35,7 @@ class PokemonListFragment : Fragment() {
 
         val adapter: PokemonAdapter = PokemonAdapter(onPokemonClick = { pokemon: Pokemon ->
             val bundle = Bundle()
-
-            bundle.putString("name", pokemon.name)
-            bundle.putString("sprite", pokemon.sprite)
-            bundle.putString("height", pokemon.height)
-            bundle.putString("weight", pokemon.weight)
-            bundle.putString("hp", pokemon.hp)
-            bundle.putString("defense", pokemon.defense)
-            bundle.putString("attack", pokemon.attack)
-            bundle.putString("speed", pokemon.speed)
-            bundle.putSerializable("types", pokemon.types as Serializable)
-            bundle.putSerializable("abilities", pokemon.abilities as Serializable)
+            bundle.putSerializable("pokemon", pokemon)
 
             parentFragmentManager
                 .beginTransaction()
@@ -54,33 +44,14 @@ class PokemonListFragment : Fragment() {
                 .commit()
         })
 
-        val limit: Int = 20
+        val limit = 20
 
-        PokemonsNetwork().getPokemonNames(
+        PokemonsNetwork().getPokemons(
             limit,
-            onResult = { pokemonNames ->
-                var pokemons: MutableList<Pokemon> = mutableListOf<Pokemon>()
-                var counter = 1
-                val size = pokemonNames.size
-
-                pokemonNames.forEach {
-                    PokemonsNetwork().getPokemon(
-                        it,
-                        onResult = { pokemon ->
-                            pokemons.add(pokemon)
-                            counter++
-
-                            if (counter == pokemonNames.size) {
-                                requireActivity().runOnUiThread() {
-                                    recyclerView.adapter = adapter
-                                    adapter.setPokemons(pokemons)
-                                }
-                            }
-                        },
-                        onError = {
-                            handleNetworkError()
-                        }
-                    )
+            onResult = { pokemons ->
+                requireActivity().runOnUiThread() {
+                    recyclerView.adapter = adapter
+                    adapter.setPokemons(pokemons)
                 }
             },
             onError = {

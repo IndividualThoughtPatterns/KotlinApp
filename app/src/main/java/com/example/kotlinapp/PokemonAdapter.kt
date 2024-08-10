@@ -15,15 +15,16 @@ class PokemonAdapter(val onPokemonClick: (pokemon: Pokemon) -> Unit) :
     inner class Viewholder(val binding: PokemonElementBinding) :
         RecyclerView.ViewHolder(binding.root) {
         var item: Pokemon? = null
-        val pokemonName_textView = binding.pokemonNameTextView
-        val avatar_imageVies = binding.avatarImageView
 
         fun bind(pokemon: Pokemon) {
             item = pokemon
-            pokemonName_textView.text = pokemon.name
-            Glide.with(avatar_imageVies)
+            binding.pokemonNameTextView.text =
+                pokemon.name.substring(0, 1).uppercase() +
+                        pokemon.name.substring(1, pokemon.name.length)
+
+            Glide.with(binding.avatarImageView)
                 .load(item?.sprite)
-                .into(avatar_imageVies)
+                .into(binding.avatarImageView)
         }
 
         init {

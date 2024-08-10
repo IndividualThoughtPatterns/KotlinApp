@@ -20,7 +20,8 @@
             android:id="@+id/avatarImageView"
             android:layout_width="300dp"
             android:layout_height="300dp"
-            android:layout_margin="8dp" />
+            android:layout_margin="8dp"
+            />
 
         <TextView
             android:id="@+id/pokemonInfoTypesTextView"

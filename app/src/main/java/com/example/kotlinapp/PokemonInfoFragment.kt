@@ -11,47 +11,54 @@ import com.example.kotlinapp.databinding.FragmentInfoBinding
 
 class PokemonInfoFragment : Fragment() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
-    lateinit var binding: FragmentInfoBinding
+    private var _binding: FragmentInfoBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        binding = FragmentInfoBinding.inflate(inflater)
-        val args: Bundle = requireArguments()
-
-        val name = args.getString("name")
-        val sprite = args.getString("sprite")
-        val height = "height: ${args.getString("height")} decimetres"
-        val weight = "weight: ${args.getString("weight")} hectograms"
-        val hp = "hp: ${args.getString("hp")}"
-        val defense = "defense: ${args.getString("defense")}"
-        val attack = "attack: ${args.getString("attack")}"
-        val speed = "speed: ${args.getString("speed")}"
-        val types = args.getString("types")
-        val abilities = args.getString("abilities")
-
-        binding.pokemonInfoNameTextView.setText(name)
-        binding.pokemonInfoHeightTextView.setText(height)
-        binding.pokemonInfoWeightTextView.setText(weight)
-        binding.pokemonInfoHpTextView.setText(hp)
-        binding.pokemonInfoDefenseTextView.setText(defense)
-        binding.pokemonInfoAttackTextView.setText(attack)
-        binding.pokemonInfoSpeedTextView.setText(speed)
-        binding.pokemonInfoTypesTextView.setText(types)
-        binding.pokemonInfoAbilitiesTextView.setText(abilities)
-
-        Glide.with(binding.avatarImageView)
-            .load(sprite)
-            .into(binding.avatarImageView)
-
+    ): View {
+        _binding = FragmentInfoBinding.inflate(inflater)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val args: Bundle = requireArguments()
+        val pokemon =  args.getSerializable("pokemon") as Pokemon
+
+        var typeNames = "| "
+        for (i in 0 until pokemon.types.size) {
+            typeNames += pokemon.types[i] + " | "
+        }
+        var abilityNames = "Abilities: "
+        for (i in 0 until pokemon.abilities.size) {
+            abilityNames += pokemon.abilities[i]
+            if (i != pokemon.abilities.size - 1)
+                abilityNames += ", "
+        }
+
+        binding.pokemonInfoNameTextView.setText(
+            pokemon.name.substring(0, 1).uppercase() +
+            pokemon.name.substring(1, pokemon.name.length)
+        )
+        binding.pokemonInfoHeightTextView.setText("Height: ${pokemon.height} decimetres")
+        binding.pokemonInfoWeightTextView.setText("Weight: ${pokemon.weight} hectograms")
+        binding.pokemonInfoHpTextView.setText("HP: ${pokemon.hp}")
+        binding.pokemonInfoDefenseTextView.setText("Defense: ${pokemon.defense}")
+        binding.pokemonInfoAttackTextView.setText("Attack: ${pokemon.attack}")
+        binding.pokemonInfoSpeedTextView.setText("Speed: ${pokemon.speed}")
+        binding.pokemonInfoTypesTextView.setText(typeNames)
+        binding.pokemonInfoAbilitiesTextView.setText(abilityNames)
+
+        Glide.with(binding.avatarImageView)
+            .load(pokemon.sprite)
+            .into(binding.avatarImageView)
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
 }

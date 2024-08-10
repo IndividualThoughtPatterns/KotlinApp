@@ -54,6 +54,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation(libs.material.v1110)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+    implementation("com.google.code.gson:gson:2.11.0")
 
     val fragment_version = "1.8.1"
     implementation("androidx.fragment:fragment-ktx:$fragment_version")
