@@ -12,7 +12,7 @@ class PokemonAdapter(val onPokemonClick: (pokemon: Pokemon) -> Unit) :
 
     inner class Viewholder(val binding: PokemonElementBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        var item: Pokemon? = null
+        private var item: Pokemon? = null
 
         fun bind(pokemon: Pokemon) {
             item = pokemon
@@ -51,7 +51,7 @@ class PokemonAdapter(val onPokemonClick: (pokemon: Pokemon) -> Unit) :
         holder.bind(pokemons[position])
     }
 
-    private var pokemons: List<Pokemon> = emptyList<Pokemon>()
+    private var pokemons: List<Pokemon> = emptyList()
     fun setPokemons(pokemonList: List<Pokemon>) {
         Log.d("adapter", "setPokemons")
         pokemons = pokemonList

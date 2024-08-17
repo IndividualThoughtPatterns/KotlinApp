@@ -35,19 +35,18 @@ class PokemonInfoFragment : Fragment() {
             if (i != pokemon.abilities.size - 1) abilityNames += ", "
         }
 
-        binding.pokemonInfoNameTextView.setText(
-            pokemon.name.substring(0, 1).uppercase() + pokemon.name.substring(
-                1, pokemon.name.length
-            )
-        )
-        binding.pokemonInfoHeightTextView.setText("Height: ${pokemon.height} decimetres")
-        binding.pokemonInfoWeightTextView.setText("Weight: ${pokemon.weight} hectograms")
-        binding.pokemonInfoHpTextView.setText("HP: ${pokemon.hp}")
-        binding.pokemonInfoDefenseTextView.setText("Defense: ${pokemon.defense}")
-        binding.pokemonInfoAttackTextView.setText("Attack: ${pokemon.attack}")
-        binding.pokemonInfoSpeedTextView.setText("Speed: ${pokemon.speed}")
-        binding.pokemonInfoTypesTextView.setText(typeNames)
-        binding.pokemonInfoAbilitiesTextView.setText(abilityNames)
+        binding.pokemonInfoNameTextView.text =
+            pokemon.name.substring(0, 1).uppercase() +
+                    pokemon.name.substring(1, pokemon.name.length)
+
+        binding.pokemonInfoHeightTextView.text = "Height: ${pokemon.height} decimetres"
+        binding.pokemonInfoWeightTextView.text = "Weight: ${pokemon.weight} hectograms"
+        binding.pokemonInfoHpTextView.text = "HP: ${pokemon.hp}"
+        binding.pokemonInfoDefenseTextView.text = "Defense: ${pokemon.defense}"
+        binding.pokemonInfoAttackTextView.text = "Attack: ${pokemon.attack}"
+        binding.pokemonInfoSpeedTextView.text = "Speed: ${pokemon.speed}"
+        binding.pokemonInfoTypesTextView.text = typeNames
+        binding.pokemonInfoAbilitiesTextView.text = abilityNames
 
         Glide.with(binding.avatarImageView).load(pokemon.sprite).into(binding.avatarImageView)
     }
