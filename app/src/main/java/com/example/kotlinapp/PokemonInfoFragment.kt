@@ -36,8 +36,8 @@ class PokemonInfoFragment : Fragment() {
         }
 
         binding.pokemonInfoNameTextView.text =
-            pokemon.name.substring(0, 1).uppercase() +
-                    pokemon.name.substring(1, pokemon.name.length)
+            "${pokemon.name.substring(0, 1).uppercase()}" +
+                    "${pokemon.name.substring(1, pokemon.name.length)}"
 
         binding.pokemonInfoHeightTextView.text = "Height: ${pokemon.height} decimetres"
         binding.pokemonInfoWeightTextView.text = "Weight: ${pokemon.weight} hectograms"

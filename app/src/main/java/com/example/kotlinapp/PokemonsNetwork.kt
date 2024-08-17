@@ -46,8 +46,6 @@ class PokemonsNetwork {
                     getPokemonNamesResponse.body()!!.names.map { response ->
                         val pokemonDescription = apiInterface.getPokemon(response.name).execute().body()!!
 
-                        val frontDefault = pokemonDescription.sprites.frontDefault
-
                         val pokemonTypes = pokemonDescription.types
                         val pokemonTypeNames = MutableList(pokemonTypes.size) {
                             pokemonTypes[it].type.name
@@ -58,9 +56,6 @@ class PokemonsNetwork {
                             pokemonAbilities[it].ability.name
                         }
 
-                        val pokemonHeight = pokemonDescription.height.toString()
-                        val pokemonWeight = pokemonDescription.weight.toString()
-
                         val pokemonStats = pokemonDescription.stats
                         val baseStats = MutableList(pokemonStats.size) {
                             pokemonStats[it].baseStat.toString()
@@ -68,11 +63,11 @@ class PokemonsNetwork {
 
                         Pokemon(
                             name = response.name,
-                            sprite = frontDefault,
+                            sprite = pokemonDescription.sprites.frontDefault,
                             types = pokemonTypeNames,
                             abilities = pokemonAbilityNames,
-                            height = pokemonHeight,
-                            weight = pokemonWeight,
+                            height = pokemonDescription.height.toString(),
+                            weight = pokemonDescription.weight.toString(),
                             hp = baseStats[0],
                             defense = baseStats[2],
                             attack = baseStats[1],
