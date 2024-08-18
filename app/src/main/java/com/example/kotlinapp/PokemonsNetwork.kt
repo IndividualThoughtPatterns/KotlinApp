@@ -1,15 +1,10 @@
 package com.example.kotlinapp
 
 import android.util.Log
-import com.google.gson.annotations.SerializedName
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.Path
-import retrofit2.http.Query
 
 class PokemonsNetwork {
 
@@ -78,57 +73,6 @@ class PokemonsNetwork {
             } else onError()
        }.start()
     }
-
-    class PokemonNames(
-        @SerializedName("results") val names: List<Name>
-    ) {
-        class Name(
-            @SerializedName("name") val name: String
-        )
-    }
-
-    class PokemonDescription (
-        @SerializedName("height") val height: Int,
-        @SerializedName("weight") val weight: Int,
-        @SerializedName("abilities") val abilities: List<AbilityObj>,
-        @SerializedName("sprites") val sprites: FrontDefault,
-        @SerializedName("types") val types: List<TypeObj>,
-        @SerializedName("stats") val stats: List<Stat>
-    ) {
-        class AbilityObj(
-            @SerializedName("ability") val ability: Ability
-        ) {
-            class Ability(
-                @SerializedName("name") val name: String
-            )
-        }
-
-        class TypeObj(
-            @SerializedName("type") val type: Type
-        ) {
-            class Type(
-                @SerializedName("name") val name: String
-            )
-        }
-
-        class Stat(
-            @SerializedName("base_stat") val baseStat: Int
-        )
-
-        class FrontDefault(
-            @SerializedName("front_default") val frontDefault: String
-        )
-    }
 }
 
-interface ApiInterface {
-    @GET("pokemon")
-    fun getPokemonNames(
-        @Query("limit") limit: Int
-    ): Call<PokemonsNetwork.PokemonNames>
 
-    @GET("pokemon/{name}")
-    fun getPokemon(
-        @Path("name") name: String
-    ): Call<PokemonsNetwork.PokemonDescription>
-}
