@@ -6,8 +6,8 @@ import java.io.Serializable
 class Pokemon(
     val name: String,
     val sprite: String,
-    var types: MutableList<String>,
-    var abilities: List<String>,
+    val types: MutableList<String>,
+    val abilities: List<String>,
     val height: String,
     val weight: String,
     val hp: String,

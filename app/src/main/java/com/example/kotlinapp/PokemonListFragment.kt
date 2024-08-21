@@ -1,23 +1,27 @@
 package com.example.kotlinapp
 
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.recyclerview.widget.RecyclerView
-import com.example.kotlinapp.databinding.FragmentMainBinding
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.kotlinapp.databinding.FragmentInfoBinding
+import com.example.kotlinapp.databinding.FragmentMainBinding
+import java.util.concurrent.Executors
 
 class PokemonListFragment : Fragment() {
-    private lateinit var binding: FragmentMainBinding
+    private var _binding: FragmentMainBinding? = null
+    private val binding get() = _binding!!
+    private val executor = Executors.newSingleThreadExecutor()
+    private val pokemonsNetwork = PokemonsNetwork()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        binding = FragmentMainBinding.inflate(inflater)
+        _binding = FragmentMainBinding.inflate(inflater)
         return binding.root
     }
 
@@ -33,17 +37,20 @@ class PokemonListFragment : Fragment() {
                 .replace(R.id.fragment, PokemonInfoFragment::class.java, bundle)
                 .addToBackStack("PokemonListFragment").commit()
         })
+        recyclerView.adapter = adapter
 
         val limit = 20
 
-        PokemonsNetwork().getPokemons(limit, onResult = { pokemons ->
-            requireActivity().runOnUiThread() {
-                recyclerView.adapter = adapter
-                adapter.setPokemons(pokemons)
+        executor.submit {
+            try {
+                val pokemons = pokemonsNetwork.getPokemons(limit)
+                requireActivity().runOnUiThread() {
+                    adapter.setPokemons(pokemons)
+                }
+            } catch (e: Exception) {
+                handleNetworkError()
             }
-        }, onError = {
-            handleNetworkError()
-        })
+        }
     }
 
     private fun handleNetworkError() {
