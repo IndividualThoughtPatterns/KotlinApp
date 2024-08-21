@@ -1,27 +1,45 @@
 package com.example.kotlinapp
 
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import com.example.kotlinapp.databinding.PokemonElementBinding
+import com.bumptech.glide.Glide
 
-class PokemonAdapter() :
+class PokemonAdapter(val onPokemonClick: (pokemon: Pokemon) -> Unit) :
     RecyclerView.Adapter<PokemonAdapter.Viewholder>() {
 
-    class Viewholder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val pokemonName_textView = itemView.findViewById<TextView>(R.id.pokemonName_textView)
+    inner class Viewholder(val binding: PokemonElementBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        private var item: Pokemon? = null
+
         fun bind(pokemon: Pokemon) {
-            pokemonName_textView.text = pokemon.name
+            item = pokemon
+            binding.pokemonNameTextView.text =
+                pokemon.name.substring(0, 1).uppercase() + pokemon.name.substring(
+                    1,
+                    pokemon.name.length
+                )
+
+            Glide.with(binding.avatarImageView).load(item?.sprite).into(binding.avatarImageView)
+        }
+
+        init {
+            itemView.setOnClickListener {
+                item?.let {
+                    onPokemonClick(it)
+                }
+            }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Viewholder {
-        val itemView =
-            LayoutInflater.from(parent.context)
-                .inflate(R.layout.pokemon_element, parent, false)
-        return Viewholder(itemView)
+        Log.d("adapter", "onCreate")
+
+        val inflater = LayoutInflater.from(parent.context)
+        val binding = PokemonElementBinding.inflate(inflater, parent, false)
+        return Viewholder(binding)
     }
 
     override fun getItemCount(): Int {
@@ -29,12 +47,13 @@ class PokemonAdapter() :
     }
 
     override fun onBindViewHolder(holder: Viewholder, position: Int) {
+        Log.d("adapter", "onBind $position")
         holder.bind(pokemons[position])
     }
 
-    private var pokemons: List<Pokemon> = emptyList<Pokemon>()
-
+    private var pokemons: List<Pokemon> = emptyList()
     fun setPokemons(pokemonList: List<Pokemon>) {
+        Log.d("adapter", "setPokemons")
         pokemons = pokemonList
         notifyDataSetChanged()
     }
