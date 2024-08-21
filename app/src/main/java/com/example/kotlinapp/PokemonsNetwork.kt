@@ -1,6 +1,5 @@
 package com.example.kotlinapp
 
-import android.util.Log
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -8,29 +7,31 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class PokemonsNetwork {
 
-    val interceptor = HttpLoggingInterceptor().apply {
+    private val interceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
-    val client = OkHttpClient.Builder()
+    private val client = OkHttpClient.Builder()
         .addInterceptor(interceptor)
         .build()
 
-    val baseURL =  "https://pokeapi.co/api/v2/"
-    val retrofit = Retrofit.Builder()
+    private val baseURL =  "https://pokeapi.co/api/v2/"
+    private val retrofit = Retrofit.Builder()
         .baseUrl(baseURL)
         .client(client)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val apiInterface = retrofit.create(ApiInterface::class.java)
+    private val apiInterface = retrofit.create(ApiInterface::class.java)
 
     fun getPokemons(
-        limit: Int
+        limit: Int,
+        offset: Int
     ): List<Pokemon> {
         val getPokemonNamesResponse = apiInterface
             .getPokemonNames(
                 limit = limit,
+                offset
             )
             .execute()
 

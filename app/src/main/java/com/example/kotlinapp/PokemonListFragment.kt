@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.kotlinapp.databinding.FragmentInfoBinding
 import com.example.kotlinapp.databinding.FragmentMainBinding
 import java.util.concurrent.Executors
 
@@ -17,6 +16,11 @@ class PokemonListFragment : Fragment() {
     private val binding get() = _binding!!
     private val executor = Executors.newSingleThreadExecutor()
     private val pokemonsNetwork = PokemonsNetwork()
+    private val limit = 20
+    private var offsetFactor = 0
+    private var offset = limit * offsetFactor
+    private var pokemonList = mutableListOf<Pokemon>()
+    private var adapter: PokemonAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -29,7 +33,7 @@ class PokemonListFragment : Fragment() {
         val recyclerView: RecyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(activity)
 
-        val adapter = PokemonAdapter(onPokemonClick = { pokemon: Pokemon ->
+        adapter = PokemonAdapter(onPokemonClick = { pokemon: Pokemon ->
             val bundle = Bundle()
             bundle.putSerializable("pokemon", pokemon)
 
@@ -39,13 +43,34 @@ class PokemonListFragment : Fragment() {
         })
         recyclerView.adapter = adapter
 
-        val limit = 20
+        recyclerView.addOnScrollListener(
+            object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
 
+                    if (!recyclerView.canScrollVertically(1) &&
+                        newState==RecyclerView.SCROLL_STATE_IDLE)
+                    {
+                        Toast.makeText(context, "загрузка...", Toast.LENGTH_LONG).show()
+
+                        offsetFactor++
+                        offset = limit * offsetFactor
+
+                        getPokemons()
+                    }
+                }
+            }
+        )
+
+        getPokemons()
+    }
+
+    private fun getPokemons() {
         executor.submit {
             try {
-                val pokemons = pokemonsNetwork.getPokemons(limit)
-                requireActivity().runOnUiThread() {
-                    adapter.setPokemons(pokemons)
+                pokemonList.addAll(pokemonsNetwork.getPokemons(limit, offset))
+                requireActivity().runOnUiThread {
+                    adapter?.setPokemons(pokemonList)
                 }
             } catch (e: Exception) {
                 handleNetworkError()
