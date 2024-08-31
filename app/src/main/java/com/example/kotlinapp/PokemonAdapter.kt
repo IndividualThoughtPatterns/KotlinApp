@@ -1,14 +1,18 @@
 package com.example.kotlinapp
 
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinapp.databinding.PokemonElementBinding
 import com.bumptech.glide.Glide
 
-class PokemonAdapter(val onPokemonClick: (pokemon: Pokemon) -> Unit) :
-    RecyclerView.Adapter<PokemonAdapter.Viewholder>() {
+class PokemonAdapter(
+    val onPokemonClick: (pokemon: Pokemon) -> Unit,
+    val onIsFavoriteClick: (pokemon: Pokemon) -> Unit
+) : RecyclerView.Adapter<PokemonAdapter.Viewholder>() {
 
     inner class Viewholder(val binding: PokemonElementBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -22,6 +26,11 @@ class PokemonAdapter(val onPokemonClick: (pokemon: Pokemon) -> Unit) :
                     pokemon.name.length
                 )
 
+            if (pokemon.isFavorite) {
+                binding.isFavoriteTextView.setTextColor(Color.rgb(255, 165, 0))
+            }
+
+            binding.isFavoriteTextView.setOnClickListener { onIsFavoriteClick(pokemon) }
             Glide.with(binding.avatarImageView).load(item?.sprite).into(binding.avatarImageView)
         }
 

@@ -14,6 +14,7 @@ class Pokemon(
     val defense: String,
     val attack: String,
     val speed: String,
+    var isFavorite: Boolean = false
 ) : Serializable {
     class PokemonNames(
         @SerializedName("results") val names: List<Name>

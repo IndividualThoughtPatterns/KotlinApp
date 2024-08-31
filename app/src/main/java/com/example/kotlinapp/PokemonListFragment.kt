@@ -1,6 +1,7 @@
 package com.example.kotlinapp
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
 import com.example.kotlinapp.databinding.FragmentMainBinding
 import java.util.concurrent.Executors
 
@@ -21,6 +23,8 @@ class PokemonListFragment : Fragment() {
     private var offset = limit * offsetFactor
     private var pokemonList = mutableListOf<Pokemon>()
     private var adapter: PokemonAdapter? = null
+    private var db: AppDatabase? = null
+    private var favoritePokemonDao: FavoritePokemonDao? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -33,14 +37,36 @@ class PokemonListFragment : Fragment() {
         val recyclerView: RecyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(activity)
 
-        adapter = PokemonAdapter(onPokemonClick = { pokemon: Pokemon ->
-            val bundle = Bundle()
-            bundle.putSerializable("pokemon", pokemon)
+        db = Room.databaseBuilder(
+            requireActivity().applicationContext,
+            AppDatabase::class.java,
+            "favorite_pokemons.db"
+        ).build()
 
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment, PokemonInfoFragment::class.java, bundle)
-                .addToBackStack("PokemonListFragment").commit()
-        })
+        favoritePokemonDao = db!!.favoritePokemonDao()
+
+        adapter = PokemonAdapter(
+            onPokemonClick = { pokemon: Pokemon ->
+                val bundle = Bundle()
+                bundle.putSerializable("pokemon", pokemon)
+
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment, PokemonInfoFragment::class.java, bundle)
+                    .addToBackStack("PokemonListFragment").commit()
+            },
+            onIsFavoriteClick = { pokemon: Pokemon ->
+                executor.submit {
+                    if (pokemon.isFavorite) {
+                        pokemon.isFavorite = false
+                        favoritePokemonDao!!.deleteByName(pokemon.name)
+                    } else {
+                        pokemon.isFavorite = true
+                        favoritePokemonDao!!.insert(FavoritePokemon(pokemon.name))
+                    }
+                }
+
+                adapter!!.notifyDataSetChanged()
+            })
         recyclerView.adapter = adapter
 
         recyclerView.addOnScrollListener(
@@ -69,9 +95,18 @@ class PokemonListFragment : Fragment() {
         executor.submit {
             try {
                 pokemonList.addAll(pokemonsNetwork.getPokemons(limit, offset))
+
+                val favoritePokemonNames = favoritePokemonDao!!.getAll().map {it.name}
+                pokemonList.forEach {
+                    if (it.name in favoritePokemonNames) {
+                        it.isFavorite = true
+                    }
+                }
+
                 requireActivity().runOnUiThread {
                     adapter?.setPokemons(pokemonList)
                 }
+
             } catch (e: Exception) {
                 handleNetworkError()
             }
