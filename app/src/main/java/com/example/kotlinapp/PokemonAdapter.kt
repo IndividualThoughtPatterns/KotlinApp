@@ -3,34 +3,36 @@ package com.example.kotlinapp
 import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinapp.databinding.PokemonElementBinding
 import com.bumptech.glide.Glide
 
 class PokemonAdapter(
-    val onPokemonClick: (pokemon: Pokemon) -> Unit,
-    val onIsFavoriteClick: (pokemon: Pokemon) -> Unit
+    val onPokemonClick: (pokemonItem: PokemonItem) -> Unit,
+    val onIsFavoriteClick: (pokemonItem: PokemonItem) -> Unit
 ) : RecyclerView.Adapter<PokemonAdapter.Viewholder>() {
 
-    inner class Viewholder(val binding: PokemonElementBinding) :
+    inner class Viewholder(private val binding: PokemonElementBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        private var item: Pokemon? = null
+        private var item: PokemonItem? = null
 
-        fun bind(pokemon: Pokemon) {
-            item = pokemon
+        fun bind(pokemonItem: PokemonItem) {
+            item = pokemonItem
             binding.pokemonNameTextView.text =
-                pokemon.name.substring(0, 1).uppercase() + pokemon.name.substring(
+                pokemonItem.name.substring(0, 1).uppercase() + pokemonItem.name.substring(
                     1,
-                    pokemon.name.length
+                    pokemonItem.name.length
                 )
 
-            if (pokemon.isFavorite) {
+            binding.isFavoriteTextView.setOnClickListener { onIsFavoriteClick(pokemonItem) }
+
+            if (pokemonItem.isFavorite) {
                 binding.isFavoriteTextView.setTextColor(Color.rgb(255, 165, 0))
+            } else {
+                binding.isFavoriteTextView.setTextColor(Color.rgb(0, 0, 0))
             }
 
-            binding.isFavoriteTextView.setOnClickListener { onIsFavoriteClick(pokemon) }
             Glide.with(binding.avatarImageView).load(item?.sprite).into(binding.avatarImageView)
         }
 
@@ -52,18 +54,18 @@ class PokemonAdapter(
     }
 
     override fun getItemCount(): Int {
-        return pokemons.size
+        return pokemonItems!!.size
     }
 
     override fun onBindViewHolder(holder: Viewholder, position: Int) {
         Log.d("adapter", "onBind $position")
-        holder.bind(pokemons[position])
+        holder.bind(pokemonItems!![position])
     }
 
-    private var pokemons: List<Pokemon> = emptyList()
-    fun setPokemons(pokemonList: List<Pokemon>) {
+    private var pokemonItems: MutableList<PokemonItem>? = null
+    fun setPokemons(pokemonItemsList: MutableList<PokemonItem>?) {
         Log.d("adapter", "setPokemons")
-        pokemons = pokemonList
+        pokemonItems = pokemonItemsList
         notifyDataSetChanged()
     }
 }

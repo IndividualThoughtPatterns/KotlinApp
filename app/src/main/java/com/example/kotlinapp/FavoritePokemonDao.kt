@@ -1,7 +1,7 @@
 package com.example.kotlinapp
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -9,7 +9,7 @@ import androidx.room.Query
 @Dao
 interface FavoritePokemonDao {
     @Query("SELECT * FROM favorite_pokemons")
-    fun getAll(): List<FavoritePokemon>
+    fun getAll(): LiveData<List<FavoritePokemon>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(favoritePokemon: FavoritePokemon)

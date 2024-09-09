@@ -7,24 +7,28 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
 import com.example.kotlinapp.databinding.FragmentMainBinding
+import java.io.IOException
 import java.util.concurrent.Executors
 
 class PokemonListFragment : Fragment() {
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
     private val executor = Executors.newSingleThreadExecutor()
-    private val pokemonsNetwork = PokemonsNetwork()
+    private var favoritePokemonDao: FavoritePokemonDao? = null
+    private var favoritePokemonListLiveData: LiveData<List<FavoritePokemon>>? = null
+    private val pokemonNetwork = App.instance.pokemonNetwork
     private val limit = 20
     private var offsetFactor = 0
     private var offset = limit * offsetFactor
-    private var pokemonList = mutableListOf<Pokemon>()
+    private var pokemonList = MutableLiveData<List<Pokemon>>()
+    private var pokemonItems = mutableListOf<PokemonItem>()
     private var adapter: PokemonAdapter? = null
-    private var db: AppDatabase? = null
-    private var favoritePokemonDao: FavoritePokemonDao? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -37,36 +41,73 @@ class PokemonListFragment : Fragment() {
         val recyclerView: RecyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(activity)
 
-        db = Room.databaseBuilder(
-            requireActivity().applicationContext,
-            AppDatabase::class.java,
-            "favorite_pokemons.db"
-        ).build()
+        favoritePokemonDao = App.instance.db.favoritePokemonDao()
 
-        favoritePokemonDao = db!!.favoritePokemonDao()
+        val favoritePokemonListObserver = Observer<List<FavoritePokemon>> { favoritePokemonList ->
+            val favoritePokemonNames = favoritePokemonList.map {it.name}
+            pokemonList.value!!.forEach {
+                it.isFavorite = it.name in favoritePokemonNames
+            }
+
+            pokemonItems = pokemonList.value!!.map { it ->
+                PokemonItem(
+                    sprite = it.sprite,
+                    name = it.name,
+                    isFavorite = it.isFavorite
+                )
+            }.toMutableList()
+
+            adapter!!.setPokemons(
+                pokemonItems
+            )
+        }
+
+        val pokemonListObserver = Observer<List<Pokemon>> {
+            favoritePokemonListLiveData = favoritePokemonDao!!.getAll()
+            favoritePokemonListLiveData!!.observe(viewLifecycleOwner, favoritePokemonListObserver)
+        }
+
+        pokemonList.observe(viewLifecycleOwner, pokemonListObserver)
+
+        executor.submit {
+            try {
+                pokemonList.postValue(pokemonNetwork.getPokemons(limit,offset))
+            } catch (e: IOException) {
+                handleNetworkError()
+            }
+        }
 
         adapter = PokemonAdapter(
-            onPokemonClick = { pokemon: Pokemon ->
+            onPokemonClick = { pokemonItem: PokemonItem ->
                 val bundle = Bundle()
+
+                var pokemon: Pokemon? = null
+                pokemonList.value!!.forEach {
+                    if (it.name == pokemonItem.name) {
+                        pokemon = it
+                    }
+                }
+
                 bundle.putSerializable("pokemon", pokemon)
 
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.fragment, PokemonInfoFragment::class.java, bundle)
                     .addToBackStack("PokemonListFragment").commit()
             },
-            onIsFavoriteClick = { pokemon: Pokemon ->
+            onIsFavoriteClick = { pokemonItem: PokemonItem ->
                 executor.submit {
-                    if (pokemon.isFavorite) {
-                        pokemon.isFavorite = false
-                        favoritePokemonDao!!.deleteByName(pokemon.name)
+                    if (pokemonItem.isFavorite) {
+                        favoritePokemonDao!!.deleteByName(pokemonItem.name)
                     } else {
-                        pokemon.isFavorite = true
-                        favoritePokemonDao!!.insert(FavoritePokemon(pokemon.name))
+                        favoritePokemonDao!!.insert(FavoritePokemon(pokemonItem.name))
                     }
-                }
 
-                adapter!!.notifyDataSetChanged()
-            })
+                    favoritePokemonListLiveData = favoritePokemonDao!!.getAll()
+                }
+            }
+        )
+
+        adapter!!.setPokemons(pokemonItems)
         recyclerView.adapter = adapter
 
         recyclerView.addOnScrollListener(
@@ -82,39 +123,23 @@ class PokemonListFragment : Fragment() {
                         offsetFactor++
                         offset = limit * offsetFactor
 
-                        getPokemons()
+                        executor.submit {
+                            try {
+                                val pokemonListUpdated = (pokemonList.value as MutableList)
+                                pokemonListUpdated.addAll(pokemonNetwork.getPokemons(limit,offset))
+                                pokemonList.postValue(pokemonListUpdated)
+                            } catch (e: IOException) {
+                                handleNetworkError()
+                            }
+                        }
                     }
                 }
             }
         )
-
-        getPokemons()
-    }
-
-    private fun getPokemons() {
-        executor.submit {
-            try {
-                pokemonList.addAll(pokemonsNetwork.getPokemons(limit, offset))
-
-                val favoritePokemonNames = favoritePokemonDao!!.getAll().map {it.name}
-                pokemonList.forEach {
-                    if (it.name in favoritePokemonNames) {
-                        it.isFavorite = true
-                    }
-                }
-
-                requireActivity().runOnUiThread {
-                    adapter?.setPokemons(pokemonList)
-                }
-
-            } catch (e: Exception) {
-                handleNetworkError()
-            }
-        }
     }
 
     private fun handleNetworkError() {
-        requireActivity().runOnUiThread() {
+        requireActivity().runOnUiThread {
             Toast.makeText(requireActivity(), "Ошибка сети", Toast.LENGTH_LONG).show()
         }
     }

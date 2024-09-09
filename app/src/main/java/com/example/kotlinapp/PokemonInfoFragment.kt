@@ -55,5 +55,4 @@ class PokemonInfoFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
 }
