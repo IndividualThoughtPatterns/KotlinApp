@@ -13,7 +13,7 @@ class Pokemon(
     val hp: String,
     val defense: String,
     val attack: String,
-    val speed: String,
+    val speed: String
 ) : Serializable {
     class PokemonNames(
         @SerializedName("results") val names: List<Name>
