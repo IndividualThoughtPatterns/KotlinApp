@@ -19,13 +19,7 @@ class PokemonAdapter(
 
         fun bind(pokemonItem: PokemonItem) {
             item = pokemonItem
-            binding.pokemonNameTextView.text =
-                pokemonItem.name.substring(0, 1).uppercase() + pokemonItem.name.substring(
-                    1,
-                    pokemonItem.name.length
-                )
-
-            binding.isFavoriteTextView.setOnClickListener { onIsFavoriteClick(pokemonItem) }
+            binding.pokemonNameTextView.text = pokemonItem.name.replaceFirstChar { it.uppercase() }
 
             if (pokemonItem.isFavorite) {
                 binding.isFavoriteTextView.setTextColor(Color.rgb(255, 165, 0))
@@ -42,6 +36,9 @@ class PokemonAdapter(
                     onPokemonClick(it)
                 }
             }
+            binding.isFavoriteTextView.setOnClickListener {
+                item?.let(onIsFavoriteClick)
+            }
         }
     }
 
@@ -54,16 +51,16 @@ class PokemonAdapter(
     }
 
     override fun getItemCount(): Int {
-        return pokemonItems!!.size
+        return pokemonItems.size
     }
 
     override fun onBindViewHolder(holder: Viewholder, position: Int) {
         Log.d("adapter", "onBind $position")
-        holder.bind(pokemonItems!![position])
+        holder.bind(pokemonItems[position])
     }
 
-    private var pokemonItems: MutableList<PokemonItem>? = null
-    fun setPokemons(pokemonItemsList: MutableList<PokemonItem>?) {
+    private var pokemonItems = emptyList<PokemonItem>()
+    fun setPokemons(pokemonItemsList: List<PokemonItem>) {
         Log.d("adapter", "setPokemons")
         pokemonItems = pokemonItemsList
         notifyDataSetChanged()
