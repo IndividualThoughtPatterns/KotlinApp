@@ -16,4 +16,9 @@ interface ApiInterface {
     fun getPokemon(
         @Path("name") name: String
     ): Call<Pokemon.PokemonDescription>
+
+    @GET("pokemon-species/{name}")
+    fun getPokemonFlavor(
+        @Path("name") name: String
+    ): Call<Pokemon.PokemonFlavor>
 }

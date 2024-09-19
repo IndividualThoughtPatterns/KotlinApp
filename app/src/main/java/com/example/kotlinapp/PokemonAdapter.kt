@@ -11,9 +11,9 @@ import com.bumptech.glide.Glide
 class PokemonAdapter(
     val onPokemonClick: (pokemonItem: PokemonItem) -> Unit,
     val onIsFavoriteClick: (pokemonItem: PokemonItem) -> Unit
-) : RecyclerView.Adapter<PokemonAdapter.Viewholder>() {
+) : RecyclerView.Adapter<PokemonAdapter.ViewHolder>() {
 
-    inner class Viewholder(private val binding: PokemonElementBinding) :
+    inner class ViewHolder(private val binding: PokemonElementBinding) :
         RecyclerView.ViewHolder(binding.root) {
         private var item: PokemonItem? = null
 
@@ -42,19 +42,19 @@ class PokemonAdapter(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Viewholder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         Log.d("adapter", "onCreate")
 
         val inflater = LayoutInflater.from(parent.context)
         val binding = PokemonElementBinding.inflate(inflater, parent, false)
-        return Viewholder(binding)
+        return ViewHolder(binding)
     }
 
     override fun getItemCount(): Int {
         return pokemonItems.size
     }
 
-    override fun onBindViewHolder(holder: Viewholder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         Log.d("adapter", "onBind $position")
         holder.bind(pokemonItems[position])
     }

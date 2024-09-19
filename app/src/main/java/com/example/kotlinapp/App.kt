@@ -16,7 +16,6 @@ class App : Application() {
             AppDatabase::class.java,
             "favorite_pokemons.db"
         ).build()
-
     }
 
     companion object {
