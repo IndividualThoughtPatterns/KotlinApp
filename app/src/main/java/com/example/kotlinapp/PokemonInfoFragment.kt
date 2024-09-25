@@ -1,8 +1,6 @@
 package com.example.kotlinapp
 
-import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
+import android.content.res.ColorStateList
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.Gravity
@@ -12,9 +10,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.cardview.widget.CardView
-import androidx.core.graphics.ColorUtils
 import com.bumptech.glide.Glide
 import com.example.kotlinapp.databinding.FragmentInfoBinding
 
@@ -75,12 +73,12 @@ class PokemonInfoFragment : Fragment() {
 
         binding.pokemonInfoHeightTextView.text = "${(pokemon.height).toFloat() / 10} m"
         binding.pokemonInfoWeightTextView.text = "${(pokemon.weight).toFloat() / 10} kg"
-        binding.pokemonInfoHpTextView.text = get3digitValue(pokemon.hp)
-        binding.pokemonInfoDefenseTextView.text = get3digitValue(pokemon.defense)
-        binding.pokemonInfoAttackTextView.text = get3digitValue(pokemon.attack)
-        binding.pokemonInfoSpeedTextView.text = get3digitValue(pokemon.speed)
+        binding.pokemonInfoHpTextView.text = get3digitValue(value = pokemon.hp)
+        binding.pokemonInfoDefenseTextView.text = get3digitValue(value = pokemon.defense)
+        binding.pokemonInfoAttackTextView.text = get3digitValue(value = pokemon.attack)
+        binding.pokemonInfoSpeedTextView.text = get3digitValue(value = pokemon.speed)
         binding.pokemonInfoAbilitiesTextView.text = abilityNames
-        binding.pokemonIdTextView.text = "#" + get3digitValue(pokemon.id)
+        binding.pokemonIdTextView.text = "#" + get3digitValue(value = pokemon.id)
         binding.pokemonFlavor.text = pokemon.flavor
 
         val drawable = resources.getDrawable(mainColor)
@@ -97,18 +95,10 @@ class PokemonInfoFragment : Fragment() {
 
         Glide.with(binding.avatarImageView).load(pokemon.bigSprite).into(binding.avatarImageView)
 
-        val maxStatValue = 233F
-        val maxLineLength = 400F
-        val statFactor = maxLineLength / maxStatValue
-
-        binding.baseStatsLayout.addView(
-            DrawView(requireContext(),
-                color = mainColor,
-                hpValue = pokemon.hp * statFactor,
-                attackValue = pokemon.attack * statFactor,
-                defenseValue = pokemon.defense * statFactor,
-                speedValue = pokemon.speed * statFactor)
-        )
+        fillProgressBar(progressBar = binding.hpProgressBar, currentValue = pokemon.hp, color = mainColor)
+        fillProgressBar(progressBar = binding.attackProgressBar, currentValue = pokemon.attack, color = mainColor)
+        fillProgressBar(progressBar = binding.defenseProgressBar, currentValue = pokemon.defense, color = mainColor)
+        fillProgressBar(progressBar = binding.speedProgressBar, currentValue = pokemon.speed, color = mainColor)
     }
 
     override fun onDestroyView() {
@@ -122,6 +112,17 @@ class PokemonInfoFragment : Fragment() {
             in 10..99 -> "0${value}"
             else -> "${value}"
         }
+    }
+
+    private fun fillProgressBar(
+        progressBar: ProgressBar,
+        currentValue: Int,
+        color: Int
+    ) {
+        progressBar.progressTintList = ColorStateList.valueOf(color)
+        progressBar.progressBackgroundTintList = ColorStateList.valueOf(color)
+        progressBar.max = 233
+        progressBar.progress = currentValue
     }
 
     private fun getColor (type: String): Int {
@@ -148,39 +149,5 @@ class PokemonInfoFragment : Fragment() {
             "unknown" -> R.color.unknown
             else -> R.color.unknown
         }
-    }
-}
-
-class DrawView(
-    context: Context,
-    private val color: Int,
-    private val hpValue: Float,
-    private val attackValue: Float,
-    private val defenseValue: Float,
-    private val speedValue: Float
-) : View(context) {
-    private val printBright = Paint()
-    private val printTransparent = Paint()
-    private val colorWithAlpha = ColorUtils.setAlphaComponent(color, 64)
-    private val lineSpace = 48F
-
-    override fun onDraw(canvas: Canvas) {
-        printBright.setColor(color)
-        printBright.strokeWidth = 10F
-
-        printTransparent.setColor(colorWithAlpha)
-        printTransparent.strokeWidth = 10F
-
-        canvas.drawLine(0F,21F,hpValue,21F, printBright)
-        canvas.drawLine(hpValue,21F,400F,21F, printTransparent)
-
-        canvas.drawLine(0F,21F + lineSpace, attackValue,21F + lineSpace, printBright)
-        canvas.drawLine(attackValue,21F + lineSpace,400F,21F + lineSpace, printTransparent)
-
-        canvas.drawLine(0F,21F + lineSpace * 2, defenseValue,21F + lineSpace * 2, printBright)
-        canvas.drawLine(defenseValue,21F + lineSpace * 2,400F,21F + lineSpace * 2, printTransparent)
-
-        canvas.drawLine(0F,21F + lineSpace * 3, speedValue,21F + lineSpace * 3, printBright)
-        canvas.drawLine(speedValue,21F + lineSpace * 3,400F,21F + lineSpace * 3, printTransparent)
     }
 }
