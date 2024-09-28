@@ -4,15 +4,17 @@ import android.content.res.ColorStateList
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.Gravity
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.generateViewId
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.kotlinapp.databinding.FragmentInfoBinding
 
@@ -34,34 +36,82 @@ class PokemonInfoFragment : Fragment() {
         var mainColor = getColor(pokemon.types[0])
 
         val typesLayout = binding.typesLayout
+        val typeCardViewList = mutableListOf<CardView>()
 
         for (i in 0 until pokemon.types.size) {
-            val typeCardView = CardView(requireContext())
-            val layoutParams = FrameLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.END
-            )
-            layoutParams.setMargins(0, 0, 30, 0)
-            typeCardView.layoutParams = layoutParams
-            typeCardView.radius = 50F
-            typeCardView.setCardBackgroundColor(getResources().getColor(getColor(pokemon.types[i])))
+            typeCardViewList.add(CardView(requireContext()))
+            typeCardViewList[i].id = generateViewId()
+            val layoutParams = ConstraintLayout.LayoutParams(
+                ConstraintLayout.LayoutParams.WRAP_CONTENT , ConstraintLayout.LayoutParams.WRAP_CONTENT)
 
-            typesLayout.addView(typeCardView)
+            layoutParams.topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+
+            typeCardViewList[i].layoutParams = layoutParams
+            typeCardViewList[i].radius = 50F
+            typeCardViewList[i].setCardBackgroundColor(resources.getColor(getColor(pokemon.types[i])))
+
+            typesLayout.addView(typeCardViewList[i])
 
             val typeTextview = TextView(requireContext())
             val typeTextViewLP = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
             )
+
             typeTextViewLP.setMargins(20, 10, 20, 10)
             typeTextview.layoutParams = typeTextViewLP
             typeTextview.gravity = Gravity.CENTER
             typeTextview.text = pokemon.types[i].replaceFirstChar { it.uppercase() }
-            typeTextview.setTypeface(typeTextview.getTypeface(), Typeface.BOLD)
-            typeTextview.setTextColor(getResources().getColor(R.color.white))
-            typeCardView.addView(typeTextview)
+            typeTextview.setTypeface(typeTextview.typeface, Typeface.BOLD)
+            typeTextview.setTextColor(resources.getColor(R.color.white))
+            typeCardViewList[i].addView(typeTextview)
         }
+
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(typesLayout)
+
+        constraintSet.createHorizontalChain(
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.LEFT,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.RIGHT,
+            typeCardViewList.map { it.id}.toIntArray(),
+            null,
+            ConstraintSet.CHAIN_PACKED
+        )
+
+        var previousItem: View? = null
+
+        for (cardView in typeCardViewList) {
+            val lastItem = typeCardViewList.indexOf(cardView) == typeCardViewList.size - 1
+            if (previousItem == null) {
+                constraintSet.connect(
+                    cardView.id,
+                    ConstraintSet.LEFT,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.LEFT
+                )
+            } else {
+                constraintSet.connect(
+                    cardView.id,
+                    ConstraintSet.LEFT,
+                    previousItem.id,
+                    ConstraintSet.RIGHT,
+                    20
+                )
+                if (lastItem) {
+                    constraintSet.connect(
+                        cardView.id,
+                        ConstraintSet.RIGHT,
+                        ConstraintSet.PARENT_ID,
+                        ConstraintSet.RIGHT
+                    )
+                }
+            }
+            previousItem = cardView
+        }
+
+        constraintSet.applyTo(typesLayout)
 
         var abilityNames = ""
         for (i in 0 until pokemon.abilities.size) {
@@ -70,15 +120,16 @@ class PokemonInfoFragment : Fragment() {
         }
 
         binding.pokemonInfoNameTextView.text = pokemon.name.replaceFirstChar { it.uppercase() }
+        binding.pokemonIdTextView.text = "#" + get3digitValue(value = pokemon.id)
 
         binding.pokemonInfoHeightTextView.text = "${(pokemon.height).toFloat() / 10} m"
         binding.pokemonInfoWeightTextView.text = "${(pokemon.weight).toFloat() / 10} kg"
-        binding.pokemonInfoHpTextView.text = get3digitValue(value = pokemon.hp)
-        binding.pokemonInfoDefenseTextView.text = get3digitValue(value = pokemon.defense)
-        binding.pokemonInfoAttackTextView.text = get3digitValue(value = pokemon.attack)
-        binding.pokemonInfoSpeedTextView.text = get3digitValue(value = pokemon.speed)
         binding.pokemonInfoAbilitiesTextView.text = abilityNames
-        binding.pokemonIdTextView.text = "#" + get3digitValue(value = pokemon.id)
+        binding.baseStatsHPValueTextView.text = get3digitValue(value = pokemon.hp)
+        binding.baseStatsAttackValueTextView.text = get3digitValue(value = pokemon.attack)
+        binding.baseStatsDefenseValueTextView.text = get3digitValue(value = pokemon.defense)
+        binding.baseStatsSpeedValueTextView.text = get3digitValue(value = pokemon.speed)
+
         binding.pokemonFlavor.text = pokemon.flavor
 
         val drawable = resources.getDrawable(mainColor)
@@ -88,10 +139,10 @@ class PokemonInfoFragment : Fragment() {
 
         binding.aboutLabelTextview.setTextColor(mainColor)
         binding.baseStatsLabelTextview.setTextColor(mainColor)
-        binding.pokemonInfoHpLabel.setTextColor(mainColor)
-        binding.pokemonInfoAttackLabel.setTextColor(mainColor)
-        binding.pokemonInfoDefenseLabel.setTextColor(mainColor)
-        binding.pokemonInfoSpeedLabel.setTextColor(mainColor)
+        binding.baseStatsHPlabelTextView.setTextColor(mainColor)
+        binding.baseStatsAttacklabelTextView.setTextColor(mainColor)
+        binding.baseStatsDefenselabelTextView.setTextColor(mainColor)
+        binding.baseStatsSpeedlabelTextView.setTextColor(mainColor)
 
         Glide.with(binding.avatarImageView).load(pokemon.bigSprite).into(binding.avatarImageView)
 
