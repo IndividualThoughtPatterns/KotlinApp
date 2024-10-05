@@ -5,8 +5,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.kotlinapp.databinding.PokemonElementBinding
 import com.bumptech.glide.Glide
+import com.example.kotlinapp.databinding.PokemonElementBinding
 
 class PokemonAdapter(
     val onPokemonClick: (pokemonItem: PokemonItem) -> Unit,

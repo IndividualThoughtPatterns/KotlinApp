@@ -106,7 +106,12 @@ class PokemonListFragment : Fragment() {
                         executor.submit {
                             try {
                                 val prevList = pokemonListLiveData.value ?: emptyList()
-                                pokemonListLiveData.postValue(prevList + pokemonNetwork.getPokemons(limit, offset))
+                                pokemonListLiveData.postValue(
+                                    prevList + pokemonNetwork.getPokemons(
+                                        limit,
+                                        offset
+                                    )
+                                )
                             } catch (e: IOException) {
                                 handleNetworkError()
                             }
@@ -117,7 +122,7 @@ class PokemonListFragment : Fragment() {
         )
     }
 
-    private fun buildPokemonItems (
+    private fun buildPokemonItems(
         pokemons: List<Pokemon>,
         favorites: List<FavoritePokemon>
     ) = pokemons.map { pokemon ->

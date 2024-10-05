@@ -3,7 +3,6 @@ package com.example.kotlinapp
 import android.app.Application
 import androidx.room.Room
 
-
 class App : Application() {
     val pokemonNetwork = PokemonNetwork()
     lateinit var db: AppDatabase

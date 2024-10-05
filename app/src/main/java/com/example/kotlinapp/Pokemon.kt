@@ -8,7 +8,7 @@ class Pokemon(
     val name: String,
     val smallSprite: String,
     val bigSprite: String,
-    val types: MutableList<String>,
+    val types: List<String>,
     val abilities: List<String>,
     val height: Int,
     val weight: Int,
@@ -26,7 +26,7 @@ class Pokemon(
         )
     }
 
-    class PokemonDescription (
+    class PokemonDescription(
         @SerializedName("id") val id: Int,
         @SerializedName("height") val height: Int,
         @SerializedName("weight") val weight: Int,
@@ -55,7 +55,7 @@ class Pokemon(
             @SerializedName("base_stat") val baseStat: Int
         )
 
-        class Sprite (
+        class Sprite(
             @SerializedName("front_default") val frontDefault: String,
             @SerializedName("other") val other: OfficialArtwork
         ) {
@@ -64,11 +64,12 @@ class Pokemon(
             ) {
                 class FrontDefault(
                     @SerializedName("front_default") val frontDefault: String
-            )}
+                )
+            }
         }
     }
 
-    class PokemonFlavor (
+    class PokemonFlavor(
         @SerializedName("flavor_text_entries") val flavorTextEntries: List<FlavorTextEntry>
     ) {
         class FlavorTextEntry(

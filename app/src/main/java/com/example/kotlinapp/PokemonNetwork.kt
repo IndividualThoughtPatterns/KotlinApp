@@ -15,7 +15,7 @@ class PokemonNetwork {
         .addInterceptor(interceptor)
         .build()
 
-    private val baseURL =  "https://pokeapi.co/api/v2/"
+    private val baseURL = "https://pokeapi.co/api/v2/"
     private val retrofit = Retrofit.Builder()
         .baseUrl(baseURL)
         .client(client)
@@ -70,7 +70,8 @@ class PokemonNetwork {
             )
         }
         pokemons = pokemons.map { it ->
-            var pokemonFlavor = apiInterface.getPokemonFlavor(it.name).execute().body()!!.flavorTextEntries[9].flavorText
+            var pokemonFlavor = apiInterface.getPokemonFlavor(it.name).execute()
+                .body()!!.flavorTextEntries[9].flavorText
             pokemonFlavor = pokemonFlavor.replace("\n", " ")
 
             Pokemon(
