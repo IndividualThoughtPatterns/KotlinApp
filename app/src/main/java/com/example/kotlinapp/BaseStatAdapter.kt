@@ -1,5 +1,6 @@
 package com.example.kotlinapp
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ProgressBar
@@ -8,22 +9,27 @@ import com.example.kotlinapp.databinding.BaseStatElementBinding
 
 class BaseStatAdapter(
     private val baseStatList: List<BaseStat>,
-    private val fillProgressBar: (
-        progressBar: ProgressBar,
-        currentValue: Int,
-        color: Int
-    ) -> Unit,
     private val color: Int
 ) : RecyclerView.Adapter<BaseStatAdapter.BaseStatsViewHolder>() {
 
     inner class BaseStatsViewHolder(private val binding: BaseStatElementBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(baseStatElement: BaseStat) {
-            binding.baseStatsLabelTextView.text = baseStatElement.baseStatName
-            binding.baseStatsValueTextView.text = baseStatElement.baseStatStringValue
-            binding.baseStatsLabelTextView.setTextColor(color)
+        private fun fillProgressBar(
+            progressBar: ProgressBar, currentValue: Int, color: Int
+        ) = with(progressBar) {
+            progressTintList = ColorStateList.valueOf(color)
+            progressBackgroundTintList = ColorStateList.valueOf(color)
+            max = 233
+            progress = currentValue
+        }
+
+        fun bind(baseStatElement: BaseStat) = with(binding) {
+            baseStatsLabelTextView.text = baseStatElement.baseStatName
+            baseStatsValueTextView.text = baseStatElement.baseStatStringValue
+            baseStatsLabelTextView.setTextColor(color)
+
             fillProgressBar(
-                binding.hpProgressBar,
+                hpProgressBar,
                 baseStatElement.baseStatValue,
                 color
             )

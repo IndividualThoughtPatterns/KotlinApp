@@ -1,11 +1,9 @@
 package com.example.kotlinapp
 
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
@@ -39,17 +37,22 @@ class PokemonInfoFragment : Fragment() {
             if (i != pokemon.abilities.size - 1) abilityNames += "\n"
         }
 
-        binding.pokemonInfoNameTextView.text = pokemon.name.replaceFirstChar { it.uppercase() }
-        binding.pokemonIdTextView.text = "#" + get3digitValue(value = pokemon.id)
-        binding.pokemonInfoHeightTextView.text = "${(pokemon.height).toFloat() / 10} m"
-        binding.pokemonInfoWeightTextView.text = "${(pokemon.weight).toFloat() / 10} kg"
-        binding.pokemonInfoAbilitiesTextView.text = abilityNames
-        binding.pokemonFlavor.text = pokemon.flavor
+        with(binding) {
+            pokemonInfoNameTextView.text = pokemon.name.replaceFirstChar { it.uppercase() }
+            pokemonIdTextView.text = "#" + get3digitValue(value = pokemon.id)
+            pokemonInfoHeightTextView.text = "${(pokemon.height).toFloat() / 10} m"
+            pokemonInfoWeightTextView.text = "${(pokemon.weight).toFloat() / 10} kg"
+            pokemonInfoAbilitiesTextView.text = abilityNames
+            pokemonFlavor.text = pokemon.flavor
 
-        val drawable = ContextCompat.getDrawable(requireContext(), mainColor)
-        binding.fragmentContainer.background = drawable
+            val drawable = ContextCompat.getDrawable(requireContext(), mainColor)
+            fragmentContainer.background = drawable
 
-        mainColor = ContextCompat.getColor(requireContext(), mainColor)
+            mainColor = ContextCompat.getColor(requireContext(), mainColor)
+
+            aboutLabelTextview.setTextColor(mainColor)
+            baseStatsLabelTextview.setTextColor(mainColor)
+        }
 
         val baseStats = listOf(
             BaseStat("HP", get3digitValue(value = pokemon.hp), pokemon.hp),
@@ -61,7 +64,6 @@ class PokemonInfoFragment : Fragment() {
         val baseStatRecyclerView = binding.baseStatsRecyclerView
         baseStatRecyclerView.adapter = BaseStatAdapter(
             baseStatList = baseStats,
-            fillProgressBar = ::fillProgressBar,
             color = mainColor
         )
     }
@@ -77,15 +79,6 @@ class PokemonInfoFragment : Fragment() {
             in 10..99 -> "0${value}"
             else -> "${value}"
         }
-    }
-
-    private fun fillProgressBar(
-        progressBar: ProgressBar, currentValue: Int, color: Int
-    ) {
-        progressBar.progressTintList = ColorStateList.valueOf(color)
-        progressBar.progressBackgroundTintList = ColorStateList.valueOf(color)
-        progressBar.max = 233
-        progressBar.progress = currentValue
     }
 
     private fun getColor(type: String): Int {

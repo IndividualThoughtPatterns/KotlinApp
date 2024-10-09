@@ -17,7 +17,7 @@ class TypesAdapter(
             binding.typeTextView.text = typeElement.replaceFirstChar { it.uppercase() }
             binding.typeCardView.setCardBackgroundColor(
                 ContextCompat.getColor(
-                    App.instance.applicationContext,
+                    itemView.context,
                     getColor(typeElement)
                 )
             )
