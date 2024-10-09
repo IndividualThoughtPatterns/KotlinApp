@@ -15,7 +15,7 @@ class PokemonNetwork {
         .addInterceptor(interceptor)
         .build()
 
-    private val baseURL =  "https://pokeapi.co/api/v2/"
+    private val baseURL = "https://pokeapi.co/api/v2/"
     private val retrofit = Retrofit.Builder()
         .baseUrl(baseURL)
         .client(client)
@@ -35,7 +35,7 @@ class PokemonNetwork {
             )
             .execute()
 
-        return getPokemonNamesResponse.body()!!.names.map { response ->
+        var pokemons = getPokemonNamesResponse.body()!!.names.map { response ->
             val pokemonDescription = apiInterface.getPokemon(response.name).execute().body()!!
 
             val pokemonTypes = pokemonDescription.types
@@ -54,18 +54,43 @@ class PokemonNetwork {
             }
 
             Pokemon(
+                id = pokemonDescription.id,
                 name = response.name,
-                sprite = pokemonDescription.sprites.frontDefault,
+                smallSprite = pokemonDescription.sprites.frontDefault,
+                bigSprite = pokemonDescription.sprites.other.officialArtwork.frontDefault,
                 types = pokemonTypeNames,
                 abilities = pokemonAbilityNames,
-                height = pokemonDescription.height.toString(),
-                weight = pokemonDescription.weight.toString(),
-                hp = baseStats[0],
-                defense = baseStats[2],
-                attack = baseStats[1],
-                speed = baseStats[5]
+                height = pokemonDescription.height,
+                weight = pokemonDescription.weight,
+                hp = baseStats[0].toInt(),
+                defense = baseStats[2].toInt(),
+                attack = baseStats[1].toInt(),
+                speed = baseStats[5].toInt(),
+                flavor = ""
             )
         }
+        pokemons = pokemons.map { it ->
+            var pokemonFlavor = apiInterface.getPokemonFlavor(it.name).execute()
+                .body()!!.flavorTextEntries[9].flavorText
+            pokemonFlavor = pokemonFlavor.replace("\n", " ")
+
+            Pokemon(
+                id = it.id,
+                name = it.name,
+                smallSprite = it.smallSprite,
+                bigSprite = it.bigSprite,
+                types = it.types,
+                abilities = it.abilities,
+                height = it.height,
+                weight = it.weight,
+                hp = it.hp,
+                defense = it.defense,
+                attack = it.attack,
+                speed = it.speed,
+                flavor = pokemonFlavor
+            )
+        }
+        return pokemons
     }
 }
 

@@ -4,16 +4,19 @@ import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
 class Pokemon(
+    val id: Int,
     val name: String,
-    val sprite: String,
-    val types: MutableList<String>,
+    val smallSprite: String,
+    val bigSprite: String,
+    val types: List<String>,
     val abilities: List<String>,
-    val height: String,
-    val weight: String,
-    val hp: String,
-    val defense: String,
-    val attack: String,
-    val speed: String
+    val height: Int,
+    val weight: Int,
+    val hp: Int,
+    val defense: Int,
+    val attack: Int,
+    val speed: Int,
+    val flavor: String
 ) : Serializable {
     class PokemonNames(
         @SerializedName("results") val names: List<Name>
@@ -23,13 +26,14 @@ class Pokemon(
         )
     }
 
-    class PokemonDescription (
+    class PokemonDescription(
+        @SerializedName("id") val id: Int,
         @SerializedName("height") val height: Int,
         @SerializedName("weight") val weight: Int,
         @SerializedName("abilities") val abilities: List<AbilityObj>,
-        @SerializedName("sprites") val sprites: FrontDefault,
+        @SerializedName("sprites") val sprites: Sprite,
         @SerializedName("types") val types: List<TypeObj>,
-        @SerializedName("stats") val stats: List<Stat>
+        @SerializedName("stats") val stats: List<Stat>,
     ) {
         class AbilityObj(
             @SerializedName("ability") val ability: Ability
@@ -51,8 +55,25 @@ class Pokemon(
             @SerializedName("base_stat") val baseStat: Int
         )
 
-        class FrontDefault(
-            @SerializedName("front_default") val frontDefault: String
+        class Sprite(
+            @SerializedName("front_default") val frontDefault: String,
+            @SerializedName("other") val other: OfficialArtwork
+        ) {
+            class OfficialArtwork(
+                @SerializedName("official-artwork") val officialArtwork: FrontDefault
+            ) {
+                class FrontDefault(
+                    @SerializedName("front_default") val frontDefault: String
+                )
+            }
+        }
+    }
+
+    class PokemonFlavor(
+        @SerializedName("flavor_text_entries") val flavorTextEntries: List<FlavorTextEntry>
+    ) {
+        class FlavorTextEntry(
+            @SerializedName("flavor_text") val flavorText: String
         )
     }
 }

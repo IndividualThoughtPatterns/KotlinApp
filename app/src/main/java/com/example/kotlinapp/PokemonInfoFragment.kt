@@ -1,16 +1,15 @@
 package com.example.kotlinapp
 
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.kotlinapp.databinding.FragmentInfoBinding
 
 class PokemonInfoFragment : Fragment() {
-
     private var _binding: FragmentInfoBinding? = null
     private val binding get() = _binding!!
 
@@ -25,34 +24,86 @@ class PokemonInfoFragment : Fragment() {
         val args: Bundle = requireArguments()
         val pokemon = args.getSerializable("pokemon") as Pokemon
 
-        var typeNames = "| "
-        for (i in 0 until pokemon.types.size) {
-            typeNames += pokemon.types[i] + " | "
-        }
-        var abilityNames = "Abilities: "
+        var mainColor = getColor(pokemon.types[0])
+
+        Glide.with(binding.avatarImageView).load(pokemon.bigSprite).into(binding.avatarImageView)
+
+        val typesRecyclerView = binding.typesRecyclerView
+        typesRecyclerView.adapter = TypesAdapter(types = pokemon.types, getColor = ::getColor)
+
+        var abilityNames = ""
         for (i in 0 until pokemon.abilities.size) {
-            abilityNames += pokemon.abilities[i]
-            if (i != pokemon.abilities.size - 1) abilityNames += ", "
+            abilityNames += pokemon.abilities[i].replaceFirstChar { it.uppercase() }
+            if (i != pokemon.abilities.size - 1) abilityNames += "\n"
         }
 
-        binding.pokemonInfoNameTextView.text =
-            "${pokemon.name.substring(0, 1).uppercase()}" +
-                    "${pokemon.name.substring(1, pokemon.name.length)}"
+        with(binding) {
+            pokemonInfoNameTextView.text = pokemon.name.replaceFirstChar { it.uppercase() }
+            pokemonIdTextView.text = "#" + get3digitValue(value = pokemon.id)
+            pokemonInfoHeightTextView.text = "${(pokemon.height).toFloat() / 10} m"
+            pokemonInfoWeightTextView.text = "${(pokemon.weight).toFloat() / 10} kg"
+            pokemonInfoAbilitiesTextView.text = abilityNames
+            pokemonFlavor.text = pokemon.flavor
 
-        binding.pokemonInfoHeightTextView.text = "Height: ${pokemon.height} decimetres"
-        binding.pokemonInfoWeightTextView.text = "Weight: ${pokemon.weight} hectograms"
-        binding.pokemonInfoHpTextView.text = "HP: ${pokemon.hp}"
-        binding.pokemonInfoDefenseTextView.text = "Defense: ${pokemon.defense}"
-        binding.pokemonInfoAttackTextView.text = "Attack: ${pokemon.attack}"
-        binding.pokemonInfoSpeedTextView.text = "Speed: ${pokemon.speed}"
-        binding.pokemonInfoTypesTextView.text = typeNames
-        binding.pokemonInfoAbilitiesTextView.text = abilityNames
+            val drawable = ContextCompat.getDrawable(requireContext(), mainColor)
+            fragmentContainer.background = drawable
 
-        Glide.with(binding.avatarImageView).load(pokemon.sprite).into(binding.avatarImageView)
+            mainColor = ContextCompat.getColor(requireContext(), mainColor)
+
+            aboutLabelTextview.setTextColor(mainColor)
+            baseStatsLabelTextview.setTextColor(mainColor)
+        }
+
+        val baseStats = listOf(
+            BaseStat("HP", get3digitValue(value = pokemon.hp), pokemon.hp),
+            BaseStat("ATK", get3digitValue(value = pokemon.attack), pokemon.attack),
+            BaseStat("DEF", get3digitValue(value = pokemon.defense), pokemon.defense),
+            BaseStat("SPD", get3digitValue(value = pokemon.speed), pokemon.speed)
+        )
+
+        val baseStatRecyclerView = binding.baseStatsRecyclerView
+        baseStatRecyclerView.adapter = BaseStatAdapter(
+            baseStatList = baseStats,
+            color = mainColor
+        )
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun get3digitValue(value: Int): String {
+        return when (value) {
+            in 0..9 -> "00${value}"
+            in 10..99 -> "0${value}"
+            else -> "${value}"
+        }
+    }
+
+    private fun getColor(type: String): Int {
+        return when (type) {
+            "normal" -> R.color.normal
+            "fire" -> R.color.fire
+            "water" -> R.color.water
+            "grass" -> R.color.grass
+            "electric" -> R.color.electric
+            "ice" -> R.color.ice
+            "fighting" -> R.color.fighting
+            "poison" -> R.color.poison
+            "ground" -> R.color.ground
+            "flying" -> R.color.flying
+            "psychic" -> R.color.psychic
+            "bug" -> R.color.bug
+            "rock" -> R.color.rock
+            "ghost" -> R.color.ghost
+            "dark" -> R.color.dark
+            "dragon" -> R.color.dragon
+            "steel" -> R.color.steel
+            "fairy" -> R.color.fairy
+            "stellar" -> R.color.stellar
+            "unknown" -> R.color.unknown
+            else -> R.color.unknown
+        }
     }
 }
