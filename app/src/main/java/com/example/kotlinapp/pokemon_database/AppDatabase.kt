@@ -1,4 +1,4 @@
-package com.example.kotlinapp
+package com.example.kotlinapp.pokemon_database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
