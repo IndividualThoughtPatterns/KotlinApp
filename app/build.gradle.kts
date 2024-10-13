@@ -66,4 +66,14 @@ dependencies {
     val room_version = "2.5.1"
     implementation("androidx.room:room-ktx:$room_version")
     kapt("androidx.room:room-compiler:$room_version")
+
+    val lifecycle_version = "2.8.6"
+
+    // ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+
+    val activity_version = "1.9.2"
+    implementation("androidx.activity:activity-ktx:$activity_version")
 }

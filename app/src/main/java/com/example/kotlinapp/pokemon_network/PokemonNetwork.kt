@@ -1,5 +1,6 @@
-package com.example.kotlinapp
+package com.example.kotlinapp.pokemon_network
 
+import com.example.kotlinapp.Pokemon
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
