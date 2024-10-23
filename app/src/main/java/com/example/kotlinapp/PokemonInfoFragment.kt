@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.kotlinapp.databinding.FragmentInfoBinding
 
@@ -22,50 +24,83 @@ class PokemonInfoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val args: Bundle = requireArguments()
-        val pokemon = args.getSerializable("pokemon") as Pokemon
+        val pokemonName = args.getString("pokemonName")
 
-        var mainColor = getColor(pokemon.types[0])
+        val pokemonInfoViewModel = ViewModelProvider(
+            this,
+            PokemonInfoViewModelFactory(
+                app = requireActivity().application,
+                name = pokemonName!!
+            )
+        )[PokemonInfoViewModel::class.java]
+        val pokemonLiveData = pokemonInfoViewModel.pokemonLIveData
 
-        Glide.with(binding.avatarImageView).load(pokemon.bigSprite).into(binding.avatarImageView)
+        pokemonLiveData.observe(viewLifecycleOwner) {
+            with(pokemonLiveData.value!!) {
+                var mainColor = getColor(types[0])
 
-        val typesRecyclerView = binding.typesRecyclerView
-        typesRecyclerView.adapter = TypesAdapter(types = pokemon.types, getColor = ::getColor)
+                Glide.with(binding.avatarImageView).load(bigSprite).into(binding.avatarImageView)
 
-        var abilityNames = ""
-        for (i in 0 until pokemon.abilities.size) {
-            abilityNames += pokemon.abilities[i].replaceFirstChar { it.uppercase() }
-            if (i != pokemon.abilities.size - 1) abilityNames += "\n"
+                val typesRecyclerView = binding.typesRecyclerView
+                typesRecyclerView.adapter = TypesAdapter(
+                    types = types,
+                    getColor = ::getColor
+                )
+
+                var abilityNames = ""
+                for (i in abilities.indices) {
+                    abilityNames += abilities[i]
+                        .replaceFirstChar { it.uppercase() }
+                    if (i != abilities.size - 1) abilityNames += "\n"
+                }
+
+                with(binding) {
+                    pokemonInfoNameTextView.text = name.replaceFirstChar { it.uppercase() }
+                    pokemonIdTextView.text = "#" + get3digitValue(value = id)
+                    pokemonInfoHeightTextView.text = "${(height).toFloat() / 10} m"
+                    pokemonInfoWeightTextView.text = "${(weight).toFloat() / 10} kg"
+                    pokemonInfoAbilitiesTextView.text = abilityNames
+                    pokemonFlavor.text = flavor
+
+                    val drawable = ContextCompat.getDrawable(requireContext(), mainColor)
+                    fragmentContainer.background = drawable
+
+                    mainColor = ContextCompat.getColor(requireContext(), mainColor)
+
+                    aboutLabelTextview.setTextColor(mainColor)
+                    baseStatsLabelTextview.setTextColor(mainColor)
+                }
+
+                val baseStats = listOf(
+                    BaseStat(
+                        baseStatName = "HP",
+                        baseStatStringValue = get3digitValue(value = hp),
+                        baseStatValue = hp
+                    ),
+                    BaseStat(
+                        baseStatName = "ATK",
+                        baseStatStringValue = get3digitValue(value = attack),
+                        baseStatValue = attack
+                    ),
+                    BaseStat(
+                        baseStatName = "DEF",
+                        baseStatStringValue = get3digitValue(value = defense),
+                        baseStatValue = defense
+                    ),
+                    BaseStat(
+                        baseStatName = "SPD",
+                        baseStatStringValue = get3digitValue(value = speed),
+                        baseStatValue = speed
+                    ),
+                )
+
+                val baseStatRecyclerView = binding.baseStatsRecyclerView
+                baseStatRecyclerView.adapter = BaseStatAdapter(
+                    baseStatList = baseStats,
+                    color = mainColor
+                )
+            }
         }
-
-        with(binding) {
-            pokemonInfoNameTextView.text = pokemon.name.replaceFirstChar { it.uppercase() }
-            pokemonIdTextView.text = "#" + get3digitValue(value = pokemon.id)
-            pokemonInfoHeightTextView.text = "${(pokemon.height).toFloat() / 10} m"
-            pokemonInfoWeightTextView.text = "${(pokemon.weight).toFloat() / 10} kg"
-            pokemonInfoAbilitiesTextView.text = abilityNames
-            pokemonFlavor.text = pokemon.flavor
-
-            val drawable = ContextCompat.getDrawable(requireContext(), mainColor)
-            fragmentContainer.background = drawable
-
-            mainColor = ContextCompat.getColor(requireContext(), mainColor)
-
-            aboutLabelTextview.setTextColor(mainColor)
-            baseStatsLabelTextview.setTextColor(mainColor)
-        }
-
-        val baseStats = listOf(
-            BaseStat("HP", get3digitValue(value = pokemon.hp), pokemon.hp),
-            BaseStat("ATK", get3digitValue(value = pokemon.attack), pokemon.attack),
-            BaseStat("DEF", get3digitValue(value = pokemon.defense), pokemon.defense),
-            BaseStat("SPD", get3digitValue(value = pokemon.speed), pokemon.speed)
-        )
-
-        val baseStatRecyclerView = binding.baseStatsRecyclerView
-        baseStatRecyclerView.adapter = BaseStatAdapter(
-            baseStatList = baseStats,
-            color = mainColor
-        )
     }
 
     override fun onDestroyView() {
@@ -77,7 +112,7 @@ class PokemonInfoFragment : Fragment() {
         return when (value) {
             in 0..9 -> "00${value}"
             in 10..99 -> "0${value}"
-            else -> "${value}"
+            else -> "$value"
         }
     }
 
