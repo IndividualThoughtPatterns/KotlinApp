@@ -1,4 +1,4 @@
-package com.example.kotlinapp.pokemon_list
+package com.example.kotlinapp
 
 class PokemonItem(
     val sprite: String,

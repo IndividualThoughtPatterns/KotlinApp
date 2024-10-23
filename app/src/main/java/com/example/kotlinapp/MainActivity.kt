@@ -2,7 +2,6 @@ package com.example.kotlinapp
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.kotlinapp.pokemon_list.PokemonListFragment
 
 class MainActivity : AppCompatActivity() {
 

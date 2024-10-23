@@ -1,6 +1,5 @@
-package com.example.kotlinapp.pokemon_network
+package com.example.kotlinapp
 
-import com.example.kotlinapp.Pokemon
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path

@@ -51,7 +51,6 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.google.code.gson:gson:2.11.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4")
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation(libs.material.v1110)
     implementation("com.google.code.gson:gson:2.11.0")
@@ -68,11 +67,7 @@ dependencies {
     kapt("androidx.room:room-compiler:$room_version")
 
     val lifecycle_version = "2.8.6"
-
-    // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
     val activity_version = "1.9.2"
     implementation("androidx.activity:activity-ktx:$activity_version")

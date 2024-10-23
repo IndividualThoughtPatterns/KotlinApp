@@ -1,4 +1,4 @@
-package com.example.kotlinapp.pokemon_info
+package com.example.kotlinapp
 
 import android.content.res.ColorStateList
 import android.view.LayoutInflater

@@ -1,4 +1,4 @@
-package com.example.kotlinapp.pokemon_list
+package com.example.kotlinapp
 
 import android.graphics.Color
 import android.util.Log

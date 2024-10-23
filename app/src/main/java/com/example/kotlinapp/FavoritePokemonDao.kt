@@ -1,4 +1,4 @@
-package com.example.kotlinapp.pokemon_database
+package com.example.kotlinapp
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao

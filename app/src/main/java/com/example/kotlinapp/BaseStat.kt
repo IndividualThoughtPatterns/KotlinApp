@@ -1,4 +1,4 @@
-package com.example.kotlinapp.pokemon_info
+package com.example.kotlinapp
 
 class BaseStat(
     val baseStatName: String,
