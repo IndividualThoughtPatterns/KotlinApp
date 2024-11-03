@@ -4,6 +4,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 class PokemonRepository {
 
@@ -13,6 +14,8 @@ class PokemonRepository {
 
     private val client = OkHttpClient.Builder()
         .addInterceptor(interceptor)
+        .readTimeout(20, TimeUnit.SECONDS)
+        .connectTimeout(20, TimeUnit.SECONDS)
         .build()
 
     private val baseURL = "https://pokeapi.co/api/v2/"
@@ -27,7 +30,7 @@ class PokemonRepository {
     fun getPokemonList(
         limit: Int,
         offset: Int
-    ): List<Pokemon> {
+    ): List<PokemonItem> {
         val getPokemonNamesResponse = apiInterface
             .getPokemonNames(
                 limit = limit,
@@ -38,20 +41,10 @@ class PokemonRepository {
         val pokemonList = getPokemonNamesResponse.body()!!.names.map { response ->
             val pokemonDescription = apiInterface.getPokemon(response.name).execute().body()!!
 
-            Pokemon(
+            PokemonItem(
                 id = pokemonDescription.id,
                 name = response.name,
                 smallSprite = pokemonDescription.sprites.frontDefault,
-                bigSprite = "",
-                types = emptyList(),
-                abilities = emptyList(),
-                height = 0,
-                weight = 0,
-                hp = 0,
-                defense = 0,
-                attack = 0,
-                speed = 0,
-                flavor = ""
             )
         }
         return pokemonList
@@ -97,6 +90,12 @@ class PokemonRepository {
 
         return pokemon
     }
+
+    class PokemonItem(
+        val id: Int,
+        val name: String,
+        val smallSprite: String
+    )
 }
 
 

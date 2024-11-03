@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.kotlinapp.databinding.FragmentInfoBinding
@@ -28,16 +27,17 @@ class PokemonInfoFragment : Fragment() {
 
         val pokemonInfoViewModel = ViewModelProvider(
             this,
-            PokemonInfoViewModelFactory(
-                app = requireActivity().application,
-                name = pokemonName!!
-            )
+            PokemonInfoViewModelFactory(name = pokemonName!!)
         )[PokemonInfoViewModel::class.java]
-        val pokemonLiveData = pokemonInfoViewModel.pokemonLIveData
 
-        pokemonLiveData.observe(viewLifecycleOwner) {
-            with(pokemonLiveData.value!!) {
-                var mainColor = getColor(types[0])
+        pokemonInfoViewModel.pokemonLIveData.observe(viewLifecycleOwner) {
+            with(it!!) {
+                binding.pokemonInfoLoadingProgressBar.visibility = View.GONE
+                binding.pokemonInfoErrorConstraintLayout.visibility = View.GONE
+                binding.pokemonInfoScrollView.visibility = View.VISIBLE
+
+                val mainColorResId = getColor(types[0])
+                val mainColor = ContextCompat.getColor(requireContext(), mainColorResId)
 
                 Glide.with(binding.avatarImageView).load(bigSprite).into(binding.avatarImageView)
 
@@ -62,10 +62,8 @@ class PokemonInfoFragment : Fragment() {
                     pokemonInfoAbilitiesTextView.text = abilityNames
                     pokemonFlavor.text = flavor
 
-                    val drawable = ContextCompat.getDrawable(requireContext(), mainColor)
+                    val drawable = ContextCompat.getDrawable(requireContext(), mainColorResId)
                     fragmentContainer.background = drawable
-
-                    mainColor = ContextCompat.getColor(requireContext(), mainColor)
 
                     aboutLabelTextview.setTextColor(mainColor)
                     baseStatsLabelTextview.setTextColor(mainColor)
@@ -99,6 +97,17 @@ class PokemonInfoFragment : Fragment() {
                     baseStatList = baseStats,
                     color = mainColor
                 )
+            }
+        }
+
+        pokemonInfoViewModel.pokemonLoadingState.observe(viewLifecycleOwner) {
+            if (!it.isLoaded) {
+                binding.pokemonInfoLoadingConstraintLayout.visibility = View.GONE
+                binding.pokemonInfoErrorConstraintLayout.visibility = View.VISIBLE
+                binding.pokemonInfoErrorTryAgainButton.setOnClickListener {
+                    binding.pokemonInfoLoadingConstraintLayout.visibility = View.VISIBLE
+                    pokemonInfoViewModel.loadPokemon()
+                }
             }
         }
     }

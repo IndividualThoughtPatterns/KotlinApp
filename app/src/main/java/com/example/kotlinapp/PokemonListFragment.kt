@@ -7,8 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -36,10 +34,7 @@ class PokemonListFragment : Fragment() {
             onPokemonClick = { pokemonItem: PokemonItem ->
                 val bundle = Bundle()
 
-                val pokemon =
-                    pokemonListLiveData.value!!.firstOrNull { it.name == pokemonItem.name }
-
-                bundle.putString("pokemonName", pokemon!!.name)
+                bundle.putString("pokemonName", pokemonItem.name)
 
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.fragment, PokemonInfoFragment::class.java, bundle)
@@ -54,9 +49,9 @@ class PokemonListFragment : Fragment() {
         pokemonListLiveData.observe(viewLifecycleOwner) {
             adapter.setPokemons(it)
         }
-        val nextPageLoadingState = pokemonListViewModel.nextPageLoadingState
-        nextPageLoadingState.observe(viewLifecycleOwner) {
-            with (nextPageLoadingState.value!!) {
+
+        pokemonListViewModel.nextPageLoadingState.observe(viewLifecycleOwner) {
+            with(it) {
                 if (isLoaded) {
                     showSuccessMessage()
                 } else {

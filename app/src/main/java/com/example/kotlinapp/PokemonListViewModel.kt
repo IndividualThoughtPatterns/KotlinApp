@@ -21,7 +21,7 @@ class PokemonListViewModel : ViewModel() {
     private val _nextPageLoadingState = MutableLiveData<LoadingState>()
     val nextPageLoadingState = _nextPageLoadingState
 
-    private var favoritePokemonListLiveData = favoritePokemonDao.getAll()
+    private val favoritePokemonListLiveData = favoritePokemonDao.getAll()
     private val favoritePokemonListObserver = Observer<List<FavoritePokemon>> {
         _pokemonItemListLiveData.postValue(
             buildPokemonItems(
@@ -31,8 +31,8 @@ class PokemonListViewModel : ViewModel() {
         )
     }
 
-    private var pokemonListLiveData = MutableLiveData<List<Pokemon>>()
-    private val pokemonListObserver = Observer<List<Pokemon>> {
+    private val pokemonListLiveData = MutableLiveData<List<PokemonRepository.PokemonItem>>()
+    private val pokemonListObserver = Observer<List<PokemonRepository.PokemonItem>> {
         _pokemonItemListLiveData.postValue(
             buildPokemonItems(
                 pokemonList = it,
@@ -41,22 +41,14 @@ class PokemonListViewModel : ViewModel() {
         )
     }
 
-    data class LoadingState(
-        val isLoaded: Boolean,
-        val error: Throwable?
-    )
-
     fun loadNextPage() {
-        offsetFactor++
-        offset = limit * offsetFactor
-
         executor.submit {
             try {
                 val prevList = pokemonListLiveData.value ?: emptyList()
                 pokemonListLiveData.postValue(
                     prevList + pokemonRepository.getPokemonList(
-                        limit,
-                        offset
+                        limit = limit,
+                        offset = offset
                     )
                 )
                 _nextPageLoadingState.postValue(
@@ -65,6 +57,8 @@ class PokemonListViewModel : ViewModel() {
                         error = null
                     )
                 )
+                offsetFactor++
+                offset = limit * offsetFactor
             } catch (e: IOException) {
                 _nextPageLoadingState.postValue(
                     LoadingState(
@@ -87,13 +81,13 @@ class PokemonListViewModel : ViewModel() {
     }
 
     private fun buildPokemonItems(
-        pokemonList: List<Pokemon>,
+        pokemonList: List<PokemonRepository.PokemonItem>,
         favorites: List<FavoritePokemon>
-    ) = pokemonList.map { pokemon ->
+    ) = pokemonList.map { pokemonItem ->
         PokemonItem(
-            sprite = pokemon.smallSprite,
-            name = pokemon.name,
-            isFavorite = favorites.firstOrNull { it.name == pokemon.name } != null
+            sprite = pokemonItem.smallSprite,
+            name = pokemonItem.name,
+            isFavorite = favorites.firstOrNull { it.name == pokemonItem.name } != null
         )
     }
 
@@ -101,21 +95,7 @@ class PokemonListViewModel : ViewModel() {
         favoritePokemonListLiveData.observeForever(favoritePokemonListObserver)
         pokemonListLiveData.observeForever(pokemonListObserver)
 
-        executor.submit {
-            try {
-                pokemonListLiveData.postValue(
-                    pokemonRepository.getPokemonList(limit = limit, offset = offset)
-                )
-            } catch (e: IOException) {
-                _nextPageLoadingState.postValue(
-                    LoadingState(
-                        isLoaded = false,
-                        error = e
-                    )
-                )
-            }
-        }
-
+        loadNextPage()
     }
 
     override fun onCleared() {
