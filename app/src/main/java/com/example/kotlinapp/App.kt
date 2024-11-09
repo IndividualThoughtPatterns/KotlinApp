@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.room.Room
 
 class App : Application() {
-    val pokemonNetwork = PokemonNetwork()
+    val pokemonRepository = PokemonRepository()
     lateinit var db: AppDatabase
 
     override fun onCreate() {
