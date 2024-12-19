@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinapp.databinding.FragmentMainBinding
@@ -32,13 +33,8 @@ class PokemonListFragment : Fragment() {
 
         val adapter = PokemonAdapter(
             onPokemonClick = { pokemonItem: PokemonItem ->
-                val bundle = Bundle()
-
-                bundle.putString("pokemonName", pokemonItem.name)
-
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment, PokemonInfoFragment::class.java, bundle)
-                    .addToBackStack("PokemonListFragment").commit()
+                val navController = findNavController()
+                navController.navigate(route = PokemonInfo(name = pokemonItem.name))
             },
             onIsFavoriteClick = { pokemonItem: PokemonItem ->
                 pokemonListViewModel.toggleFavorite(pokemonItem)
@@ -95,3 +91,4 @@ class PokemonListFragment : Fragment() {
         }
     }
 }
+

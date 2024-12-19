@@ -22,12 +22,9 @@ class PokemonInfoFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val args: Bundle = requireArguments()
-        val pokemonName = args.getString("pokemonName")
-
         val pokemonInfoViewModel = ViewModelProvider(
             this,
-            PokemonInfoViewModelFactory(name = pokemonName!!)
+            PokemonInfoViewModelFactory()
         )[PokemonInfoViewModel::class.java]
 
         pokemonInfoViewModel.pokemonLIveData.observe(viewLifecycleOwner) {
