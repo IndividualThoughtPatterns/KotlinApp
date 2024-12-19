@@ -12,18 +12,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val navController = navHostFragment.navController
+        if (savedInstanceState == null) {
+            val navHostFragment =
+                supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+            val navController = navHostFragment.navController
 
-        navController.graph = navController.createGraph(
-            startDestination = PokemonList
-        ) {
-            fragment<PokemonListFragment, PokemonList> {
-                label = "Pokemon List"
-            }
-            fragment<PokemonInfoFragment, PokemonInfo> {
-                label = "Pokemon"
+            navController.graph = navController.createGraph(
+                startDestination = PokemonList
+            ) {
+                fragment<PokemonListFragment, PokemonList> {
+                    label = "Pokemon List"
+                }
+                fragment<PokemonInfoFragment, PokemonInfo> {
+                    label = "Pokemon"
+                }
             }
         }
     }
