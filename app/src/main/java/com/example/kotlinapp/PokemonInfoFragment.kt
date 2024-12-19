@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.toRoute
 import com.bumptech.glide.Glide
 import com.example.kotlinapp.databinding.FragmentInfoBinding
 
@@ -22,12 +24,13 @@ class PokemonInfoFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val args: Bundle = requireArguments()
-        val pokemonName = args.getString("pokemonName")
+        val navController = findNavController()
+        val pokemonRoute = navController.getBackStackEntry<PokemonInfo>().toRoute<PokemonInfo>()
+        val pokemonName = pokemonRoute.name
 
         val pokemonInfoViewModel = ViewModelProvider(
             this,
-            PokemonInfoViewModelFactory(name = pokemonName!!)
+            PokemonInfoViewModelFactory(name = pokemonName)
         )[PokemonInfoViewModel::class.java]
 
         pokemonInfoViewModel.pokemonLIveData.observe(viewLifecycleOwner) {
