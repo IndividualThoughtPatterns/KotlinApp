@@ -2,11 +2,13 @@ package com.example.kotlinapp
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.navigation.toRoute
 import java.io.IOException
 import java.util.concurrent.Executors
 
-class PokemonInfoViewModel(val name: String) : ViewModel() {
+class PokemonInfoViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
     private val executor = Executors.newSingleThreadExecutor()
     private val pokemonRepository = App.instance.pokemonRepository
     private val _pokemonLiveData = MutableLiveData<Pokemon>()
@@ -15,6 +17,9 @@ class PokemonInfoViewModel(val name: String) : ViewModel() {
     private val _pokemonLoadingState = MutableLiveData<LoadingState>()
     val pokemonLoadingState = _pokemonLoadingState
 
+    private val pokemonInfoRoute = savedStateHandle.toRoute<PokemonInfo>()
+    private val pokemonInfoName = pokemonInfoRoute.name
+
     init {
         loadPokemon()
     }
@@ -22,7 +27,7 @@ class PokemonInfoViewModel(val name: String) : ViewModel() {
     fun loadPokemon() {
         executor.submit {
             try {
-                _pokemonLiveData.postValue(pokemonRepository.getPokemonByName(name))
+                _pokemonLiveData.postValue(pokemonRepository.getPokemonByName(pokemonInfoName))
                 _pokemonLoadingState.postValue(
                     LoadingState(
                         isLoaded = true,
