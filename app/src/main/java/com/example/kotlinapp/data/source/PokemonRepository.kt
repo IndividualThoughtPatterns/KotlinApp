@@ -1,5 +1,7 @@
-package com.example.kotlinapp
+package com.example.kotlinapp.data.source
 
+import com.example.kotlinapp.data.source.remote.NetworkApiInterface
+import com.example.kotlinapp.data.Pokemon
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -25,13 +27,13 @@ class PokemonRepository {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    private val apiInterface = retrofit.create(ApiInterface::class.java)
+    private val networkApiInterface = retrofit.create(NetworkApiInterface::class.java)
 
     fun getPokemonList(
         limit: Int,
         offset: Int
     ): List<PokemonItem> {
-        val getPokemonNamesResponse = apiInterface
+        val getPokemonNamesResponse = networkApiInterface
             .getPokemonNames(
                 limit = limit,
                 offset
@@ -39,7 +41,7 @@ class PokemonRepository {
             .execute()
 
         val pokemonList = getPokemonNamesResponse.body()!!.names.map { response ->
-            val pokemonDescription = apiInterface.getPokemon(response.name).execute().body()!!
+            val pokemonDescription = networkApiInterface.getPokemon(response.name).execute().body()!!
 
             PokemonItem(
                 id = pokemonDescription.id,
@@ -51,7 +53,7 @@ class PokemonRepository {
     }
 
     fun getPokemonByName(name: String): Pokemon {
-        val pokemonDescription = apiInterface.getPokemon(name).execute().body()!!
+        val pokemonDescription = networkApiInterface.getPokemon(name).execute().body()!!
 
         val pokemonTypes = pokemonDescription.types
         val pokemonTypeNames = MutableList(pokemonTypes.size) {
@@ -82,7 +84,7 @@ class PokemonRepository {
                 defense = baseStats[2].toInt(),
                 attack = baseStats[1].toInt(),
                 speed = baseStats[5].toInt(),
-                flavor = apiInterface.getPokemonFlavor(name).execute()
+                flavor = networkApiInterface.getPokemonFlavor(name).execute()
                     .body()!!.flavorTextEntries[9].flavorText
                     .replace("\n", " ")
             )

@@ -1,4 +1,4 @@
-package com.example.kotlinapp
+package com.example.kotlinapp.ui.pokemoninfo
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,6 +8,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
+import com.example.kotlinapp.R
+import com.example.kotlinapp.data.BaseStat
 import com.example.kotlinapp.databinding.FragmentInfoBinding
 
 class PokemonInfoFragment : Fragment() {

@@ -1,4 +1,4 @@
-package com.example.kotlinapp
+package com.example.kotlinapp.data
 
 class BaseStat(
     val baseStatName: String,

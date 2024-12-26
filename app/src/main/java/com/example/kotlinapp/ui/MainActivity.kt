@@ -1,10 +1,14 @@
-package com.example.kotlinapp
+package com.example.kotlinapp.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.createGraph
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.fragment
+import com.example.kotlinapp.R
+import com.example.kotlinapp.ui.pokemoninfo.PokemonInfo
+import com.example.kotlinapp.ui.pokemoninfo.PokemonInfoFragment
+import com.example.kotlinapp.ui.pokemonlist.PokemonListFragment
 import kotlinx.serialization.Serializable
 
 class MainActivity : AppCompatActivity() {

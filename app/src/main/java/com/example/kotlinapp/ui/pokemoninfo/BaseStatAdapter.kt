@@ -1,10 +1,11 @@
-package com.example.kotlinapp
+package com.example.kotlinapp.ui.pokemoninfo
 
 import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.RecyclerView
+import com.example.kotlinapp.data.BaseStat
 import com.example.kotlinapp.databinding.BaseStatElementBinding
 
 class BaseStatAdapter(

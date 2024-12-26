@@ -1,9 +1,14 @@
-package com.example.kotlinapp
+package com.example.kotlinapp.ui.pokemonlist
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import com.example.kotlinapp.App
+import com.example.kotlinapp.data.FavoritePokemon
+import com.example.kotlinapp.data.LoadingState
+import com.example.kotlinapp.data.PokemonItem
+import com.example.kotlinapp.data.source.PokemonRepository
 import java.io.IOException
 import java.util.concurrent.Executors
 

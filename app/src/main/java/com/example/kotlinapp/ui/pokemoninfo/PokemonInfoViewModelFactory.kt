@@ -1,4 +1,4 @@
-package com.example.kotlinapp
+package com.example.kotlinapp.ui.pokemoninfo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
