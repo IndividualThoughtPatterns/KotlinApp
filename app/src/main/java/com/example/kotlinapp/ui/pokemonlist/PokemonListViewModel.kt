@@ -4,30 +4,29 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
-import com.example.kotlinapp.App
-import com.example.kotlinapp.data.FavoritePokemon
-import com.example.kotlinapp.data.LoadingState
-import com.example.kotlinapp.data.PokemonItem
-import com.example.kotlinapp.data.source.PokemonRepository
+import com.example.kotlinapp.domain.pokemons.PokemonItem
+import com.example.kotlinapp.domain.pokemons.PokemonRepository
+import com.example.kotlinapp.ui.LoadingState
 import java.io.IOException
 import java.util.concurrent.Executors
 
-class PokemonListViewModel : ViewModel() {
+class PokemonListViewModel(
+    private val pokemonRepository: PokemonRepository
+) : ViewModel() {
     private val executor = Executors.newSingleThreadExecutor()
-    private var favoritePokemonDao = App.instance.db.favoritePokemonDao()
-    private val pokemonRepository = App.instance.pokemonRepository
     private val limit = 20
     private var offsetFactor = 0
     private var offset = limit * offsetFactor
 
-    private val _pokemonItemListLiveData = MutableLiveData<List<PokemonItem>>()
-    val pokemonItemListLiveData: LiveData<List<PokemonItem>> = _pokemonItemListLiveData
+    private val _pokemonItemListLiveData = MutableLiveData<List<PokemonAdapter.PokemonItem>>()
+    val pokemonItemListLiveData: LiveData<List<PokemonAdapter.PokemonItem>> =
+        _pokemonItemListLiveData
 
     private val _nextPageLoadingState = MutableLiveData<LoadingState>()
     val nextPageLoadingState = _nextPageLoadingState
 
-    private val favoritePokemonListLiveData = favoritePokemonDao.getAll()
-    private val favoritePokemonListObserver = Observer<List<FavoritePokemon>> {
+    private val favoritePokemonListLiveData = pokemonRepository.getFavoriteNames()
+    private val favoritePokemonListObserver = Observer<List<String>> {
         _pokemonItemListLiveData.postValue(
             buildPokemonItems(
                 pokemonList = pokemonListLiveData.value ?: emptyList(),
@@ -36,8 +35,8 @@ class PokemonListViewModel : ViewModel() {
         )
     }
 
-    private val pokemonListLiveData = MutableLiveData<List<PokemonRepository.PokemonItem>>()
-    private val pokemonListObserver = Observer<List<PokemonRepository.PokemonItem>> {
+    private val pokemonListLiveData = MutableLiveData<List<PokemonItem>>()
+    private val pokemonListObserver = Observer<List<PokemonItem>> {
         _pokemonItemListLiveData.postValue(
             buildPokemonItems(
                 pokemonList = it,
@@ -75,31 +74,26 @@ class PokemonListViewModel : ViewModel() {
         }
     }
 
-    fun toggleFavorite(pokemonItem: PokemonItem) {
+    fun toggleFavorite(pokemonItem: PokemonAdapter.PokemonItem) {
         executor.submit {
-            if (pokemonItem.isFavorite) {
-                favoritePokemonDao.deleteByName(pokemonItem.name)
-            } else {
-                favoritePokemonDao.insert(FavoritePokemon(pokemonItem.name))
-            }
+            pokemonRepository.changeFavorite(pokemonItem.name, pokemonItem.isFavorite)
         }
     }
 
     private fun buildPokemonItems(
-        pokemonList: List<PokemonRepository.PokemonItem>,
-        favorites: List<FavoritePokemon>
+        pokemonList: List<PokemonItem>,
+        favorites: List<String>
     ) = pokemonList.map { pokemonItem ->
-        PokemonItem(
+        PokemonAdapter.PokemonItem(
             sprite = pokemonItem.smallSprite,
             name = pokemonItem.name,
-            isFavorite = favorites.firstOrNull { it.name == pokemonItem.name } != null
+            isFavorite = favorites.firstOrNull { it == pokemonItem.name } != null
         )
     }
 
     init {
         favoritePokemonListLiveData.observeForever(favoritePokemonListObserver)
         pokemonListLiveData.observeForever(pokemonListObserver)
-
         loadNextPage()
     }
 

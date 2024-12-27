@@ -1,4 +1,4 @@
-package com.example.kotlinapp.data
+package com.example.kotlinapp.ui
 
 data class LoadingState(
     val isLoaded: Boolean,

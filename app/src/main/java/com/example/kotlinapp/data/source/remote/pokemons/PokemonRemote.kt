@@ -1,9 +1,9 @@
-package com.example.kotlinapp.data
+package com.example.kotlinapp.data.source.remote.pokemons
 
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
-class Pokemon(
+class PokemonRemote(
     val id: Int,
     val name: String,
     val smallSprite: String,

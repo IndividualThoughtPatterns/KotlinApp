@@ -1,4 +1,4 @@
-package com.example.kotlinapp.data
+package com.example.kotlinapp.data.source.local.favorites
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

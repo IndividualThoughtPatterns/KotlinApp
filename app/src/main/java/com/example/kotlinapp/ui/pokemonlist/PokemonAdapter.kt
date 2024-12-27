@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.kotlinapp.data.PokemonItem
 import com.example.kotlinapp.databinding.PokemonElementBinding
 
 class PokemonAdapter(
@@ -66,4 +65,10 @@ class PokemonAdapter(
         pokemonItems = pokemonItemsList
         notifyDataSetChanged()
     }
+
+    class PokemonItem(
+        val sprite: String,
+        val name: String,
+        val isFavorite: Boolean
+    )
 }

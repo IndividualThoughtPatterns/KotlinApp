@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.kotlinapp.R
-import com.example.kotlinapp.data.BaseStat
 import com.example.kotlinapp.databinding.FragmentInfoBinding
 
 class PokemonInfoFragment : Fragment() {
@@ -29,7 +28,7 @@ class PokemonInfoFragment : Fragment() {
             PokemonInfoViewModelFactory()
         )[PokemonInfoViewModel::class.java]
 
-        pokemonInfoViewModel.pokemonLIveData.observe(viewLifecycleOwner) {
+        pokemonInfoViewModel.pokemonRemoteLiveData.observe(viewLifecycleOwner) {
             with(it!!) {
                 binding.pokemonInfoLoadingProgressBar.visibility = View.GONE
                 binding.pokemonInfoErrorConstraintLayout.visibility = View.GONE

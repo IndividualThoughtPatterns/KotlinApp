@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.RecyclerView
-import com.example.kotlinapp.data.BaseStat
 import com.example.kotlinapp.databinding.BaseStatElementBinding
 
 class BaseStatAdapter(

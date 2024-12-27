@@ -5,16 +5,19 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.navigation.toRoute
-import com.example.kotlinapp.App
-import com.example.kotlinapp.domain.GetPokemonByNameUseCase
-import com.example.kotlinapp.data.LoadingState
-import com.example.kotlinapp.data.Pokemon
+import com.example.kotlinapp.ui.LoadingState
+import com.example.kotlinapp.domain.pokemons.GetPokemonByNameUseCase
+import com.example.kotlinapp.domain.pokemons.Pokemon
+import java.io.IOException
 import java.util.concurrent.Executors
 
-class PokemonInfoViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
+class PokemonInfoViewModel(
+    private val getPokemonByNameUseCase: GetPokemonByNameUseCase,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
     private val executor = Executors.newSingleThreadExecutor()
-    private val _pokemonLiveData = MutableLiveData<Pokemon>()
-    val pokemonLIveData: LiveData<Pokemon?> = _pokemonLiveData
+    private val _pokemonRemoteLiveData = MutableLiveData<Pokemon>()
+    val pokemonRemoteLiveData: LiveData<Pokemon?> = _pokemonRemoteLiveData
 
     private val _pokemonLoadingState = MutableLiveData<LoadingState>()
     val pokemonLoadingState = _pokemonLoadingState
@@ -28,14 +31,21 @@ class PokemonInfoViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
 
     fun loadPokemon() {
         executor.submit {
-            val pokemonWithLoadingState = GetPokemonByNameUseCase(
-                pokemonRepository = App.instance.pokemonRepository,
-                pokemonName = pokemonInfoName
-            )()
-
-            with(pokemonWithLoadingState) {
-                _pokemonLiveData.postValue(pokemon)
-                _pokemonLoadingState.postValue(loadingState)
+            try {
+                _pokemonRemoteLiveData.postValue(getPokemonByNameUseCase(pokemonInfoName))
+                _pokemonLoadingState.postValue(
+                    LoadingState(
+                        isLoaded = true,
+                        error = null
+                    )
+                )
+            } catch (e: IOException) {
+                _pokemonLoadingState.postValue(
+                    LoadingState(
+                        isLoaded = false,
+                        error = e
+                    )
+                )
             }
         }
     }

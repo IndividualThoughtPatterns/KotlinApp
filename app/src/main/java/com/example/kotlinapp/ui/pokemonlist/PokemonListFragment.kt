@@ -7,15 +7,26 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.kotlinapp.data.PokemonItem
+import com.example.kotlinapp.App
 import com.example.kotlinapp.databinding.FragmentMainBinding
 import com.example.kotlinapp.ui.pokemoninfo.PokemonInfo
 
 class PokemonListFragment : Fragment() {
+
+    private val pokemonListViewModel: PokemonListViewModel by viewModels(factoryProducer = {
+        object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+                return PokemonListViewModel(App.instance.pokemonRepositoryImpl) as T
+            }
+        }
+    })
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
 
@@ -27,20 +38,17 @@ class PokemonListFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val pokemonListViewModel = ViewModelProvider(this)[PokemonListViewModel::class.java]
         val pokemonListLiveData = pokemonListViewModel.pokemonItemListLiveData
 
         val recyclerView: RecyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(activity)
 
         val adapter = PokemonAdapter(
-            onPokemonClick = { pokemonItem: PokemonItem ->
+            onPokemonClick = { pokemonItem: PokemonAdapter.PokemonItem ->
                 val navController = findNavController()
                 navController.navigate(route = PokemonInfo(name = pokemonItem.name))
             },
-            onIsFavoriteClick = { pokemonItem: PokemonItem ->
-                pokemonListViewModel.toggleFavorite(pokemonItem)
-            }
+            onIsFavoriteClick = pokemonListViewModel::toggleFavorite
         )
 
 
