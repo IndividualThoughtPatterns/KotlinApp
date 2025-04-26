@@ -1,4 +1,4 @@
-package com.example.kotlinapp
+package com.example.kotlinapp.ui.pokemonlist
 
 import android.os.Bundle
 import android.util.Log
@@ -11,7 +11,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.kotlinapp.data.PokemonItem
 import com.example.kotlinapp.databinding.FragmentMainBinding
+import com.example.kotlinapp.ui.pokemoninfo.PokemonInfo
 
 class PokemonListFragment : Fragment() {
     private var _binding: FragmentMainBinding? = null

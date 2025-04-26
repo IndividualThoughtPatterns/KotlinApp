@@ -1,4 +1,4 @@
-package com.example.kotlinapp
+package com.example.kotlinapp.ui.pokemoninfo
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
