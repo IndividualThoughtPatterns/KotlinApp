@@ -1,7 +1,6 @@
 package com.example.kotlinapp.ui.pokemoninfo
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,25 +8,17 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.example.kotlinapp.R
 import com.example.kotlinapp.data.BaseStat
 import com.example.kotlinapp.databinding.FragmentInfoBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlin.coroutines.EmptyCoroutineContext
 
 class PokemonInfoFragment : Fragment() {
     private var _binding: FragmentInfoBinding? = null
     private val binding get() = _binding!!
-    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main) // для теста
-    private var pokemonJob: Job? = null
-    private var loadingStateJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -42,10 +33,8 @@ class PokemonInfoFragment : Fragment() {
             PokemonInfoViewModelFactory()
         )[PokemonInfoViewModel::class.java]
 
-        pokemonJob = coroutineScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED) {
-                Log.d("mydebug", pokemonJob?.isActive.toString())
-                //delay(10000)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
                 pokemonInfoViewModel.pokemonStateFlow.collect {
                     it?.let {
                         with(it) {
@@ -123,10 +112,8 @@ class PokemonInfoFragment : Fragment() {
             }
         }
 
-        loadingStateJob = coroutineScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED) {
-                Log.d("mydebug", pokemonJob?.isActive.toString())
-                //delay(10000)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
                 pokemonInfoViewModel.pokemonLoadingState.collect {
                     it?.let {
                         if (!it.isLoaded) {
@@ -141,22 +128,11 @@ class PokemonInfoFragment : Fragment() {
                 }
             }
         }
-
-//        pokemonInfoViewModel.pokemonLIveData.observe(viewLifecycleOwner) {
-//        }
-
-//        pokemonInfoViewModel.pokemonLoadingState.observe(viewLifecycleOwner) {
-//
-//        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        pokemonJob?.cancel()
-        loadingStateJob?.cancel()
-        Log.d("mydebug", pokemonJob?.isActive.toString())
-        Log.d("mydebug", loadingStateJob?.isActive.toString())
     }
 
     private fun get3digitValue(value: Int): String {
