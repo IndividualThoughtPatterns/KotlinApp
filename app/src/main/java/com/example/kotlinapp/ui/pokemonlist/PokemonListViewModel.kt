@@ -9,11 +9,15 @@ import com.example.kotlinapp.data.FavoritePokemon
 import com.example.kotlinapp.data.LoadingState
 import com.example.kotlinapp.data.PokemonItem
 import com.example.kotlinapp.data.source.PokemonRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.concurrent.Executors
 
 class PokemonListViewModel : ViewModel() {
-    private val executor = Executors.newSingleThreadExecutor()
+    //private val executor = Executors.newSingleThreadExecutor()
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO) // для теста, потом на ViewModelScope замению
     private var favoritePokemonDao = App.instance.db.favoritePokemonDao()
     private val pokemonRepository = App.instance.pokemonRepository
     private val limit = 20
@@ -47,7 +51,7 @@ class PokemonListViewModel : ViewModel() {
     }
 
     fun loadNextPage() {
-        executor.submit {
+        coroutineScope.launch {
             try {
                 val prevList = pokemonListLiveData.value ?: emptyList()
                 pokemonListLiveData.postValue(
@@ -73,16 +77,21 @@ class PokemonListViewModel : ViewModel() {
                 )
             }
         }
+//        executor.submit {
+//
+//        }
     }
 
     fun toggleFavorite(pokemonItem: PokemonItem) {
-        executor.submit {
+        coroutineScope.launch {
             if (pokemonItem.isFavorite) {
                 favoritePokemonDao.deleteByName(pokemonItem.name)
             } else {
                 favoritePokemonDao.insert(FavoritePokemon(pokemonItem.name))
             }
         }
+//        executor.submit {
+//        }
     }
 
     private fun buildPokemonItems(

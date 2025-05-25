@@ -1,20 +1,33 @@
 package com.example.kotlinapp.ui.pokemoninfo
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.example.kotlinapp.R
 import com.example.kotlinapp.data.BaseStat
 import com.example.kotlinapp.databinding.FragmentInfoBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlin.coroutines.EmptyCoroutineContext
 
 class PokemonInfoFragment : Fragment() {
     private var _binding: FragmentInfoBinding? = null
     private val binding get() = _binding!!
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main) // для теста
+    private var pokemonJob: Job? = null
+    private var loadingStateJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -29,91 +42,121 @@ class PokemonInfoFragment : Fragment() {
             PokemonInfoViewModelFactory()
         )[PokemonInfoViewModel::class.java]
 
-        pokemonInfoViewModel.pokemonLIveData.observe(viewLifecycleOwner) {
-            with(it!!) {
-                binding.pokemonInfoLoadingProgressBar.visibility = View.GONE
-                binding.pokemonInfoErrorConstraintLayout.visibility = View.GONE
-                binding.pokemonInfoScrollView.visibility = View.VISIBLE
+        pokemonJob = coroutineScope.launch {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
+                Log.d("mydebug", pokemonJob?.isActive.toString())
+                //delay(10000)
+                pokemonInfoViewModel.pokemonStateFlow.collect {
+                    it?.let {
+                        with(it) {
+                            binding.pokemonInfoLoadingProgressBar.visibility = View.GONE
+                            binding.pokemonInfoErrorConstraintLayout.visibility = View.GONE
+                            binding.pokemonInfoScrollView.visibility = View.VISIBLE
 
-                val mainColorResId = getColor(types[0])
-                val mainColor = ContextCompat.getColor(requireContext(), mainColorResId)
+                            val mainColorResId = getColor(types[0])
+                            val mainColor = ContextCompat.getColor(requireContext(), mainColorResId)
 
-                Glide.with(binding.avatarImageView).load(bigSprite).into(binding.avatarImageView)
+                            Glide.with(binding.avatarImageView).load(bigSprite)
+                                .into(binding.avatarImageView)
 
-                val typesRecyclerView = binding.typesRecyclerView
-                typesRecyclerView.adapter = TypesAdapter(
-                    types = types,
-                    getColor = ::getColor
-                )
+                            val typesRecyclerView = binding.typesRecyclerView
+                            typesRecyclerView.adapter = TypesAdapter(
+                                types = types,
+                                getColor = ::getColor
+                            )
 
-                var abilityNames = ""
-                for (i in abilities.indices) {
-                    abilityNames += abilities[i]
-                        .replaceFirstChar { it.uppercase() }
-                    if (i != abilities.size - 1) abilityNames += "\n"
+                            var abilityNames = ""
+                            for (i in abilities.indices) {
+                                abilityNames += abilities[i]
+                                    .replaceFirstChar { it.uppercase() }
+                                if (i != abilities.size - 1) abilityNames += "\n"
+                            }
+
+                            with(binding) {
+                                pokemonInfoNameTextView.text =
+                                    name.replaceFirstChar { it.uppercase() }
+                                pokemonIdTextView.text = "#" + get3digitValue(value = id)
+                                pokemonInfoHeightTextView.text = "${(height).toFloat() / 10} m"
+                                pokemonInfoWeightTextView.text = "${(weight).toFloat() / 10} kg"
+                                pokemonInfoAbilitiesTextView.text = abilityNames
+                                pokemonFlavor.text = flavor
+
+                                val drawable =
+                                    ContextCompat.getDrawable(requireContext(), mainColorResId)
+                                fragmentContainer.background = drawable
+
+                                aboutLabelTextview.setTextColor(mainColor)
+                                baseStatsLabelTextview.setTextColor(mainColor)
+                            }
+
+                            val baseStats = listOf(
+                                BaseStat(
+                                    baseStatName = "HP",
+                                    baseStatStringValue = get3digitValue(value = hp),
+                                    baseStatValue = hp
+                                ),
+                                BaseStat(
+                                    baseStatName = "ATK",
+                                    baseStatStringValue = get3digitValue(value = attack),
+                                    baseStatValue = attack
+                                ),
+                                BaseStat(
+                                    baseStatName = "DEF",
+                                    baseStatStringValue = get3digitValue(value = defense),
+                                    baseStatValue = defense
+                                ),
+                                BaseStat(
+                                    baseStatName = "SPD",
+                                    baseStatStringValue = get3digitValue(value = speed),
+                                    baseStatValue = speed
+                                ),
+                            )
+
+                            val baseStatRecyclerView = binding.baseStatsRecyclerView
+                            baseStatRecyclerView.adapter = BaseStatAdapter(
+                                baseStatList = baseStats,
+                                color = mainColor
+                            )
+                        }
+                    }
                 }
-
-                with(binding) {
-                    pokemonInfoNameTextView.text = name.replaceFirstChar { it.uppercase() }
-                    pokemonIdTextView.text = "#" + get3digitValue(value = id)
-                    pokemonInfoHeightTextView.text = "${(height).toFloat() / 10} m"
-                    pokemonInfoWeightTextView.text = "${(weight).toFloat() / 10} kg"
-                    pokemonInfoAbilitiesTextView.text = abilityNames
-                    pokemonFlavor.text = flavor
-
-                    val drawable = ContextCompat.getDrawable(requireContext(), mainColorResId)
-                    fragmentContainer.background = drawable
-
-                    aboutLabelTextview.setTextColor(mainColor)
-                    baseStatsLabelTextview.setTextColor(mainColor)
-                }
-
-                val baseStats = listOf(
-                    BaseStat(
-                        baseStatName = "HP",
-                        baseStatStringValue = get3digitValue(value = hp),
-                        baseStatValue = hp
-                    ),
-                    BaseStat(
-                        baseStatName = "ATK",
-                        baseStatStringValue = get3digitValue(value = attack),
-                        baseStatValue = attack
-                    ),
-                    BaseStat(
-                        baseStatName = "DEF",
-                        baseStatStringValue = get3digitValue(value = defense),
-                        baseStatValue = defense
-                    ),
-                    BaseStat(
-                        baseStatName = "SPD",
-                        baseStatStringValue = get3digitValue(value = speed),
-                        baseStatValue = speed
-                    ),
-                )
-
-                val baseStatRecyclerView = binding.baseStatsRecyclerView
-                baseStatRecyclerView.adapter = BaseStatAdapter(
-                    baseStatList = baseStats,
-                    color = mainColor
-                )
             }
         }
 
-        pokemonInfoViewModel.pokemonLoadingState.observe(viewLifecycleOwner) {
-            if (!it.isLoaded) {
-                binding.pokemonInfoLoadingConstraintLayout.visibility = View.GONE
-                binding.pokemonInfoErrorConstraintLayout.visibility = View.VISIBLE
-                binding.pokemonInfoErrorTryAgainButton.setOnClickListener {
-                    binding.pokemonInfoLoadingConstraintLayout.visibility = View.VISIBLE
-                    pokemonInfoViewModel.loadPokemon()
+        loadingStateJob = coroutineScope.launch {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
+                Log.d("mydebug", pokemonJob?.isActive.toString())
+                //delay(10000)
+                pokemonInfoViewModel.pokemonLoadingState.collect {
+                    it?.let {
+                        if (!it.isLoaded) {
+                            binding.pokemonInfoLoadingConstraintLayout.visibility = View.GONE
+                            binding.pokemonInfoErrorConstraintLayout.visibility = View.VISIBLE
+                            binding.pokemonInfoErrorTryAgainButton.setOnClickListener {
+                                binding.pokemonInfoLoadingConstraintLayout.visibility = View.VISIBLE
+                                pokemonInfoViewModel.loadPokemon()
+                            }
+                        }
+                    }
                 }
             }
         }
+
+//        pokemonInfoViewModel.pokemonLIveData.observe(viewLifecycleOwner) {
+//        }
+
+//        pokemonInfoViewModel.pokemonLoadingState.observe(viewLifecycleOwner) {
+//
+//        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        pokemonJob?.cancel()
+        loadingStateJob?.cancel()
+        Log.d("mydebug", pokemonJob?.isActive.toString())
+        Log.d("mydebug", loadingStateJob?.isActive.toString())
     }
 
     private fun get3digitValue(value: Int): String {
