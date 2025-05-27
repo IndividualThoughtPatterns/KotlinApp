@@ -7,13 +7,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinapp.data.PokemonItem
 import com.example.kotlinapp.databinding.FragmentMainBinding
 import com.example.kotlinapp.ui.pokemoninfo.PokemonInfo
+import kotlinx.coroutines.launch
 
 class PokemonListFragment : Fragment() {
     private var _binding: FragmentMainBinding? = null
@@ -28,7 +32,6 @@ class PokemonListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val pokemonListViewModel = ViewModelProvider(this)[PokemonListViewModel::class.java]
-        val pokemonListLiveData = pokemonListViewModel.pokemonItemListLiveData
 
         val recyclerView: RecyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(activity)
@@ -43,21 +46,28 @@ class PokemonListFragment : Fragment() {
             }
         )
 
-
-        pokemonListLiveData.observe(viewLifecycleOwner) {
-            adapter.setPokemons(it)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
+                pokemonListViewModel.pokemonItemListFlow.collect {
+                    adapter.setPokemons(it)
+                }
+            }
         }
 
-        pokemonListViewModel.nextPageLoadingState.observe(viewLifecycleOwner) {
-            with(it) {
-                if (isLoaded) {
-                    showSuccessMessage()
-                } else {
-                    handleNetworkError()
-                    Log.d(
-                        "next page loading failure",
-                        error!!.message.toString()
-                    )
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
+                pokemonListViewModel.nextPageLoadingStateFlow.collect {
+                    it?.let {
+                        if (it.isLoaded) {
+                            showSuccessMessage()
+                        } else {
+                            handleNetworkError()
+                            Log.d(
+                                "next page loading failure",
+                                it.error!!.message.toString()
+                            )
+                        }
+                    }
                 }
             }
         }

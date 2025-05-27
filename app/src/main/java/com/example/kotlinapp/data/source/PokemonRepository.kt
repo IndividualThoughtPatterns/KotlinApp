@@ -1,7 +1,7 @@
 package com.example.kotlinapp.data.source
 
-import com.example.kotlinapp.data.source.remote.NetworkApiInterface
 import com.example.kotlinapp.data.Pokemon
+import com.example.kotlinapp.data.source.remote.NetworkApiInterface
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -32,7 +32,7 @@ class PokemonRepository {
     fun getPokemonList(
         limit: Int,
         offset: Int
-    ): List<PokemonItem> {
+    ): List<PokemonItemWithId> {
         val getPokemonNamesResponse = networkApiInterface
             .getPokemonNames(
                 limit = limit,
@@ -41,9 +41,10 @@ class PokemonRepository {
             .execute()
 
         val pokemonList = getPokemonNamesResponse.body()!!.names.map { response ->
-            val pokemonDescription = networkApiInterface.getPokemon(response.name).execute().body()!!
+            val pokemonDescription =
+                networkApiInterface.getPokemon(response.name).execute().body()!!
 
-            PokemonItem(
+            PokemonItemWithId(
                 id = pokemonDescription.id,
                 name = response.name,
                 smallSprite = pokemonDescription.sprites.frontDefault,
@@ -93,7 +94,7 @@ class PokemonRepository {
         return pokemon
     }
 
-    class PokemonItem(
+    class PokemonItemWithId(
         val id: Int,
         val name: String,
         val smallSprite: String
