@@ -29,7 +29,7 @@ class PokemonInfoViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
     }
 
     fun loadPokemon() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val pokemonWithLoadingState = GetPokemonByNameUseCase(
                 pokemonRepository = App.instance.pokemonRepository,
                 pokemonName = pokemonInfoName

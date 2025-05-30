@@ -12,7 +12,7 @@ class GetPokemonByNameUseCase(
     private var pokemon: Pokemon? = null
     private var loadingState: LoadingState? = null
 
-    operator fun invoke(): PokemonWithLoadingState {
+    suspend operator fun invoke(): PokemonWithLoadingState {
         try {
             pokemon = pokemonRepository.getPokemonByName(pokemonName)
 

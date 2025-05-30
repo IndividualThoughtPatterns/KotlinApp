@@ -2,6 +2,8 @@ package com.example.kotlinapp.data.source
 
 import com.example.kotlinapp.data.Pokemon
 import com.example.kotlinapp.data.source.remote.NetworkApiInterface
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -53,44 +55,46 @@ class PokemonRepository {
         return pokemonList
     }
 
-    fun getPokemonByName(name: String): Pokemon {
-        val pokemonDescription = networkApiInterface.getPokemon(name).execute().body()!!
+    suspend fun getPokemonByName(name: String): Pokemon {
+        val pokemon: Pokemon
+        withContext(Dispatchers.IO) {
+            val pokemonDescription = networkApiInterface.getPokemon(name).execute().body()!!
 
-        val pokemonTypes = pokemonDescription.types
-        val pokemonTypeNames = MutableList(pokemonTypes.size) {
-            pokemonTypes[it].type.name
+            val pokemonTypes = pokemonDescription.types
+            val pokemonTypeNames = MutableList(pokemonTypes.size) {
+                pokemonTypes[it].type.name
+            }
+
+            val pokemonAbilities = pokemonDescription.abilities
+            val pokemonAbilityNames = MutableList(pokemonAbilities.size) {
+                pokemonAbilities[it].ability.name
+            }
+
+            val pokemonStats = pokemonDescription.stats
+            val baseStats = MutableList(pokemonStats.size) {
+                pokemonStats[it].baseStat.toString()
+            }
+
+            pokemon = with(pokemonDescription) {
+                Pokemon(
+                    id = id,
+                    name = name,
+                    smallSprite = sprites.frontDefault,
+                    bigSprite = sprites.other.officialArtwork.frontDefault,
+                    types = pokemonTypeNames,
+                    abilities = pokemonAbilityNames,
+                    height = height,
+                    weight = weight,
+                    hp = baseStats[0].toInt(),
+                    defense = baseStats[2].toInt(),
+                    attack = baseStats[1].toInt(),
+                    speed = baseStats[5].toInt(),
+                    flavor = networkApiInterface.getPokemonFlavor(name).execute()
+                        .body()!!.flavorTextEntries[9].flavorText
+                        .replace("\n", " ")
+                )
+            }
         }
-
-        val pokemonAbilities = pokemonDescription.abilities
-        val pokemonAbilityNames = MutableList(pokemonAbilities.size) {
-            pokemonAbilities[it].ability.name
-        }
-
-        val pokemonStats = pokemonDescription.stats
-        val baseStats = MutableList(pokemonStats.size) {
-            pokemonStats[it].baseStat.toString()
-        }
-
-        val pokemon = with(pokemonDescription) {
-            Pokemon(
-                id = id,
-                name = name,
-                smallSprite = sprites.frontDefault,
-                bigSprite = sprites.other.officialArtwork.frontDefault,
-                types = pokemonTypeNames,
-                abilities = pokemonAbilityNames,
-                height = height,
-                weight = weight,
-                hp = baseStats[0].toInt(),
-                defense = baseStats[2].toInt(),
-                attack = baseStats[1].toInt(),
-                speed = baseStats[5].toInt(),
-                flavor = networkApiInterface.getPokemonFlavor(name).execute()
-                    .body()!!.flavorTextEntries[9].flavorText
-                    .replace("\n", " ")
-            )
-        }
-
         return pokemon
     }
 
