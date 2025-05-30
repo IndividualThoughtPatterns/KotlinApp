@@ -56,26 +56,28 @@ class PokemonRepository {
     }
 
     suspend fun getPokemonByName(name: String): Pokemon {
-        val pokemon: Pokemon
-        withContext(Dispatchers.IO) {
-            val pokemonDescription = networkApiInterface.getPokemon(name).execute().body()!!
-
-            val pokemonTypes = pokemonDescription.types
-            val pokemonTypeNames = MutableList(pokemonTypes.size) {
-                pokemonTypes[it].type.name
+        val pokemonDescription =
+            withContext(Dispatchers.IO) {
+                networkApiInterface.getPokemon(name).execute().body()!!
             }
 
-            val pokemonAbilities = pokemonDescription.abilities
-            val pokemonAbilityNames = MutableList(pokemonAbilities.size) {
-                pokemonAbilities[it].ability.name
-            }
+        val pokemonTypes = pokemonDescription.types
+        val pokemonTypeNames = MutableList(pokemonTypes.size) {
+            pokemonTypes[it].type.name
+        }
 
-            val pokemonStats = pokemonDescription.stats
-            val baseStats = MutableList(pokemonStats.size) {
-                pokemonStats[it].baseStat.toString()
-            }
+        val pokemonAbilities = pokemonDescription.abilities
+        val pokemonAbilityNames = MutableList(pokemonAbilities.size) {
+            pokemonAbilities[it].ability.name
+        }
 
-            pokemon = with(pokemonDescription) {
+        val pokemonStats = pokemonDescription.stats
+        val baseStats = MutableList(pokemonStats.size) {
+            pokemonStats[it].baseStat.toString()
+        }
+
+        val pokemon = withContext(Dispatchers.IO) {
+            with(pokemonDescription) {
                 Pokemon(
                     id = id,
                     name = name,
