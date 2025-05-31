@@ -8,7 +8,6 @@ import com.example.kotlinapp.App
 import com.example.kotlinapp.data.LoadingState
 import com.example.kotlinapp.data.Pokemon
 import com.example.kotlinapp.domain.GetPokemonByNameUseCase
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update

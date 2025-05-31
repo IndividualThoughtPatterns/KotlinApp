@@ -1,7 +1,6 @@
 package com.example.kotlinapp.ui.pokemonlist
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import com.example.kotlinapp.App
 import com.example.kotlinapp.data.FavoritePokemon
@@ -10,8 +9,10 @@ import com.example.kotlinapp.data.PokemonItem
 import com.example.kotlinapp.data.source.PokemonRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -23,28 +24,22 @@ class PokemonListViewModel : ViewModel() {
     private var offsetFactor = 0
     private var offset = limit * offsetFactor
 
-    private val _pokemonItemListFlow = MutableStateFlow<List<PokemonItem>>(emptyList())
-    val pokemonItemListFlow = _pokemonItemListFlow.asStateFlow()
-
     private val _nextPageLoadingStateFlow = MutableStateFlow<LoadingState?>(null)
     val nextPageLoadingStateFlow = _nextPageLoadingStateFlow.asStateFlow()
 
-
-    private val favoritePokemonListFlow = favoritePokemonDao.getAll().asFlow()
     private val pokemonItemWithIdListFlow =
         MutableStateFlow<List<PokemonRepository.PokemonItemWithId>>(
             emptyList()
         )
 
-    init {
-        viewModelScope.launch {
-            combine(pokemonItemWithIdListFlow, favoritePokemonListFlow) { pokemonList, favorites ->
-                buildPokemonItems(pokemonList, favorites)
-            }.collect {
-                _pokemonItemListFlow.value = it
-            }
-        }
+    val pokemonItemListFlow = combine(
+        pokemonItemWithIdListFlow,
+        favoritePokemonDao.getAllAsFlow()
+    ) { pokemonList, favorites ->
+        buildPokemonItems(pokemonList, favorites)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    init {
         loadNextPage()
     }
 
