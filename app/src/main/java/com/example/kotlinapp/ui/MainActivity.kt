@@ -35,7 +35,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -48,7 +47,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.font.FontWeight
@@ -189,17 +187,11 @@ fun Main(
         ) { stackEntry ->
             val pokemonJson = stackEntry.arguments?.getString("pokemonJson")
 
-            //Декодируем
             val decodedPokemonJson = pokemonJson?.let { Uri.decode(it) }
 
-            // 1. Десериализуйте JSON обратно в объект Pokemon
             val gson = Gson()
-            val pokemon: Pokemon? = try {
-                gson.fromJson(decodedPokemonJson, Pokemon::class.java)
-            } catch (e: Exception) {
-                Log.e("PokemonInfo", "Error deserializing Pokemon", e)
-                null // Обработка ошибки десериализации
-            }
+            val pokemon: Pokemon? = gson.fromJson(decodedPokemonJson, Pokemon::class.java)
+
 
             if (pokemon != null) {
                 PokemonInfo(pokemon)
@@ -300,9 +292,11 @@ fun TypeElement(text: String, color: Color) {
 
 @Composable
 fun BaseStatElement(baseStat: BaseStat, color: Color) {
-    ConstraintLayout(modifier = Modifier
-        .fillMaxWidth()
-        .height(IntrinsicSize.Min)) {
+    ConstraintLayout(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+    ) {
         val (baseStatsLabelTextRef,
             baseStatsLabelsValuesDividerRef,
             baseStatsValueTextRef,
