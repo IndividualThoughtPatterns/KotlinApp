@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.ads.mobile.sdk)
+    //implementation(libs.androidx.navigation.compose.jvmstubs)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -79,11 +80,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
     implementation(libs.androidx.activity.ktx)
-
-    implementation(libs.androidx.navigation.fragment)
-    implementation(libs.androidx.navigation.ui)
-
-    implementation(libs.androidx.navigation.dynamic.features.fragment)
 
     implementation(libs.kotlinx.serialization.json)
 
@@ -113,4 +109,8 @@ dependencies {
 
     implementation(libs.compose)
     implementation(libs.androidx.material.icons.extended)
+
+    implementation(libs.androidx.navigation.compose)
+
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.1")
 }

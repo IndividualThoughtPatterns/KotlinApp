@@ -6,6 +6,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginStart="15dp"
+    app:cardBackgroundColor="@color/grass"
     app:cardCornerRadius="50dp">
 
     <TextView

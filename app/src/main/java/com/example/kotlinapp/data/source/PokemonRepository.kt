@@ -1,5 +1,6 @@
 package com.example.kotlinapp.data.source
 
+import android.util.Log
 import com.example.kotlinapp.data.Pokemon
 import com.example.kotlinapp.data.source.remote.NetworkApiInterface
 import kotlinx.coroutines.Dispatchers

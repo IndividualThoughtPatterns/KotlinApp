@@ -10,7 +10,7 @@
         android:id="@+id/pokemonInfoLoadingConstraintLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <ProgressBar
             android:id="@+id/pokemonInfoLoadingProgressBar"
@@ -22,38 +22,39 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/pokemonInfoErrorConstraintLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingLeft="10dp"
-        android:paddingTop="15dp"
-        android:paddingRight="10dp"
-        android:visibility="gone">
+<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--        android:id="@+id/pokemonInfoErrorConstraintLayout"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:paddingLeft="10dp"-->
+<!--        android:paddingTop="15dp"-->
+<!--        android:paddingRight="10dp"-->
+<!--        >-->
 
-        <TextView
-            android:id="@+id/pokemonInfoErrorMessage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Ошибка сети. Проверьте соединение с интернетом и попробуйте еще раз"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+<!--        <TextView-->
+<!--            android:id="@+id/pokemonInfoErrorMessage"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Ошибка сети. Проверьте соединение с интернетом и попробуйте еще раз"-->
+<!--            app:layout_constraintLeft_toLeftOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent" />-->
 
-        <Button
-            android:id="@+id/pokemonInfoErrorTryAgainButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:text="Загрузить"
-            app:layout_constraintRight_toRightOf="@id/pokemonInfoErrorMessage"
-            app:layout_constraintTop_toBottomOf="@id/pokemonInfoErrorMessage" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+<!--        <Button-->
+<!--            android:id="@+id/pokemonInfoErrorTryAgainButton"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="15dp"-->
+<!--            android:text="Загрузить"-->
+<!--            app:layout_constraintRight_toRightOf="@id/pokemonInfoErrorMessage"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/pokemonInfoErrorMessage" />-->
+<!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
 
     <ScrollView
         android:id="@+id/pokemonInfoScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone">
+
+        >
 
         <LinearLayout
             android:layout_width="match_parent"

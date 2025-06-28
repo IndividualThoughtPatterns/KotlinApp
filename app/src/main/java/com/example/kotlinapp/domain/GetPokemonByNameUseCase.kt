@@ -1,5 +1,6 @@
 package com.example.kotlinapp.domain
 
+import android.util.Log
 import com.example.kotlinapp.data.LoadingState
 import com.example.kotlinapp.data.Pokemon
 import com.example.kotlinapp.data.source.PokemonRepository

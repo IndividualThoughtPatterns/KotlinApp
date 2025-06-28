@@ -1,5 +1,6 @@
 package com.example.kotlinapp.ui.pokemoninfo
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,15 +14,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class PokemonInfoViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
+class PokemonInfoViewModel(name: String) : ViewModel() {
     private val _pokemonStateFlow = MutableStateFlow<Pokemon?>(null)
     val pokemonStateFlow = _pokemonStateFlow.asStateFlow()
 
     private val _pokemonLoadingState = MutableStateFlow<LoadingState?>(null)
     val pokemonLoadingState = _pokemonLoadingState.asStateFlow()
 
-    private val pokemonInfoRoute = savedStateHandle.toRoute<PokemonInfo>()
-    private val pokemonInfoName = pokemonInfoRoute.name
+    //    private val pokemonInfoRoute = savedStateHandle.toRoute<PokemonInfo>()
+    private val pokemonInfoName = name
 
     init {
         loadPokemon()
@@ -31,7 +32,7 @@ class PokemonInfoViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
         viewModelScope.launch {
             val pokemonWithLoadingState = GetPokemonByNameUseCase(
                 pokemonRepository = App.instance.pokemonRepository,
-                pokemonName = pokemonInfoName
+                pokemonName = pokemonInfoName.toString()
             )()
 
             with(pokemonWithLoadingState) {
