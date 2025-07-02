@@ -1,0 +1,75 @@
+package com.example.kotlinapp.ui.pokemonlist
+
+import android.util.Log
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.kotlinapp.data.PokemonItem
+import kotlinx.coroutines.launch
+import androidx.compose.foundation.lazy.items
+import com.example.kotlinapp.data.LoadingState
+
+@Composable
+fun PokemonList(
+    navController: NavController // для проброски вроде был какой-то local че-то там вроде
+) {
+    val pokemonListViewModel = viewModel<PokemonListViewModel>()
+    var pokemonItemsList = remember { mutableStateOf<List<PokemonItem>?>(null) }
+    var nextPageLoadingState = remember { mutableStateOf<LoadingState?>(null) }
+
+    val state = rememberLazyListState()
+    LaunchedEffect(state) {
+        snapshotFlow {
+            !state.canScrollForward && (state.layoutInfo.totalItemsCount != 0)
+        }.collect {
+            if (!state.canScrollForward) {
+                pokemonListViewModel.loadNextPage()
+            }
+        }
+    }
+
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(key1 = Unit) {
+        coroutineScope.launch {
+            pokemonListViewModel.pokemonItemListFlow.collect {
+                pokemonItemsList.value = it
+            }
+        }
+//        coroutineScope.launch {
+//            pokemonListViewModel.nextPageLoadingStateFlow.collect {
+//                it?.let {
+//                    nextPageLoadingState.value = it
+//
+//                    if (it.isLoaded) {
+//                        showSuccessMessage()
+//                    } else {
+//                        handleNetworkError()
+//                        Log.d(
+//                            "next page loading failure",
+//                            it.error!!.message.toString()
+//                        )
+//                    }
+//                }
+//            }
+//        }
+    }
+    if (pokemonItemsList.value != null) {
+        LazyColumn(state = state) {
+            items(items = pokemonItemsList.value!!) { pokemonItem ->
+                PokemonElement(pokemonItem = pokemonItem, navController)
+            }
+        }
+    }
+
+//    if (nextPageLoadingState.value != null && nextPageLoadingState.value!!.isLoaded) {
+//        showsnackbar
+//    }
+}

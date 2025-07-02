@@ -1,10 +1,7 @@
 package com.example.kotlinapp.ui.pokemoninfo
 
-import android.util.Log
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.example.kotlinapp.App
 import com.example.kotlinapp.data.LoadingState
 import com.example.kotlinapp.data.Pokemon

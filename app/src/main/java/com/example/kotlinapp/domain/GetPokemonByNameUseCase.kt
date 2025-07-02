@@ -28,13 +28,13 @@ class GetPokemonByNameUseCase(
             )
         }
         return PokemonWithLoadingState(
-            pokemon!!,
+            pokemon,
             loadingState!!
         )
     }
 
     data class PokemonWithLoadingState(
-        val pokemon: Pokemon,
+        val pokemon: Pokemon?,
         val loadingState: LoadingState
     )
 }
