@@ -1,7 +1,7 @@
 package com.example.kotlinapp.ui.pokemonlist
 
-import android.util.Log
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -11,10 +11,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.kotlinapp.data.LoadingState
 import com.example.kotlinapp.data.PokemonItem
 import kotlinx.coroutines.launch
-import androidx.compose.foundation.lazy.items
-import com.example.kotlinapp.data.LoadingState
 
 @Composable
 fun PokemonList(
@@ -64,10 +63,17 @@ fun PokemonList(
     if (pokemonItemsList.value != null) {
         LazyColumn(state = state) {
             items(items = pokemonItemsList.value!!) { pokemonItem ->
-                PokemonElement(pokemonItem = pokemonItem, navController)
+                PokemonElement(
+                    pokemonItem = pokemonItem,
+                    navController = navController,
+                    onIsFavoriteClick = { pokemonItem: PokemonItem ->
+                        pokemonListViewModel.toggleFavorite(pokemonItem)
+                    }
+                )
             }
         }
     }
+
 
 //    if (nextPageLoadingState.value != null && nextPageLoadingState.value!!.isLoaded) {
 //        showsnackbar

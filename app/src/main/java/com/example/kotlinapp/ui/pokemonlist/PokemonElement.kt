@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -25,7 +26,11 @@ import com.example.kotlinapp.data.PokemonItem
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun PokemonElement(pokemonItem: PokemonItem, navController: NavController) {
+fun PokemonElement(
+    pokemonItem: PokemonItem,
+    navController: NavController,
+    onIsFavoriteClick: (pokemonItem: PokemonItem) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -55,13 +60,14 @@ fun PokemonElement(pokemonItem: PokemonItem, navController: NavController) {
                 style = MaterialTheme.typography.headlineSmall,
             )
             IconButton(
-                onClick = {},
+                onClick = { pokemonItem.let(onIsFavoriteClick) },
                 modifier = Modifier
                     .weight(2f)
             ) {
                 Icon(
                     imageVector = Icons.Outlined.StarOutline,
-                    contentDescription = ""
+                    contentDescription = "",
+                    tint = if (pokemonItem.isFavorite) Color(255, 165, 0) else Color(0, 0, 0)
                 )
             }
         }

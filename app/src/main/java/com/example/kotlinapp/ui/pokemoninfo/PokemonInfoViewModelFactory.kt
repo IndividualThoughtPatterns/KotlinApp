@@ -2,7 +2,6 @@ package com.example.kotlinapp.ui.pokemoninfo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 
 class PokemonInfoViewModelFactory(val name: String) : ViewModelProvider.Factory {

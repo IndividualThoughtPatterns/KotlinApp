@@ -1,7 +1,5 @@
 package com.example.kotlinapp.ui
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -11,7 +9,6 @@ import androidx.navigation.navArgument
 import com.example.kotlinapp.ui.pokemoninfo.PokemonInfoScreen
 import com.example.kotlinapp.ui.pokemonlist.PokemonList
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun Main() {
     val navController = rememberNavController()

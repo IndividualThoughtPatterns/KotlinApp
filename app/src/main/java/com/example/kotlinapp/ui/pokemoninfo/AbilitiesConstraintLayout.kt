@@ -10,7 +10,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.kotlinapp.data.Pokemon
-import kotlin.text.replaceFirstChar
 
 @Composable
 fun AbilitiesConstraintLayout(modifier: Modifier, pokemon: Pokemon) {
