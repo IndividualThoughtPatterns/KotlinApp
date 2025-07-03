@@ -1,6 +1,5 @@
 package com.example.kotlinapp.ui.pokemoninfo
 
-import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,7 +18,6 @@ fun AbilitiesConstraintLayout(modifier: Modifier, pokemon: Pokemon) {
             .replaceFirstChar { it.uppercase() }
         if (i != pokemon.abilities.size - 1) abilityNames += "\n"
     }
-    Log.d("mydebug", abilityNames)
 
     ConstraintLayout(modifier = modifier) {
         val (pokemonInfoAbilitiesTextRef, abilitiesLabelTextRef) = createRefs()

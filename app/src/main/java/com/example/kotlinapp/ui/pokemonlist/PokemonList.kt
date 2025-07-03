@@ -26,9 +26,9 @@ fun PokemonList(
     val state = rememberLazyListState()
     LaunchedEffect(state) {
         snapshotFlow {
-            !state.canScrollForward && (state.layoutInfo.totalItemsCount != 0)
+            !state.canScrollForward && (state.layoutInfo.visibleItemsInfo.isNotEmpty())
         }.collect {
-            if (!state.canScrollForward) {
+            if (!state.canScrollForward && (state.layoutInfo.visibleItemsInfo.isNotEmpty())) {
                 pokemonListViewModel.loadNextPage()
             }
         }
@@ -42,24 +42,9 @@ fun PokemonList(
                 pokemonItemsList.value = it
             }
         }
-//        coroutineScope.launch {
-//            pokemonListViewModel.nextPageLoadingStateFlow.collect {
-//                it?.let {
-//                    nextPageLoadingState.value = it
-//
-//                    if (it.isLoaded) {
-//                        showSuccessMessage()
-//                    } else {
-//                        handleNetworkError()
-//                        Log.d(
-//                            "next page loading failure",
-//                            it.error!!.message.toString()
-//                        )
-//                    }
-//                }
-//            }
-//        }
     }
+
+
     if (pokemonItemsList.value != null) {
         LazyColumn(state = state) {
             items(items = pokemonItemsList.value!!) { pokemonItem ->
@@ -73,9 +58,4 @@ fun PokemonList(
             }
         }
     }
-
-
-//    if (nextPageLoadingState.value != null && nextPageLoadingState.value!!.isLoaded) {
-//        showsnackbar
-//    }
 }

@@ -1,6 +1,5 @@
 package com.example.kotlinapp.ui.pokemoninfo
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -68,7 +67,6 @@ fun AboutCardContent(pokemon: Pokemon) {
                         absoluteLeft.linkTo(parent.absoluteLeft)
                         absoluteRight.linkTo(parent.absoluteRight)
                         top.linkTo(parent.top)
-                        Log.d("mydebug", parent.toString())
                     }
                     .padding(top = 50.dp)
             ) {
