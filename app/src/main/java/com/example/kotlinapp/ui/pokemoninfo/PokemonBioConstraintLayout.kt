@@ -7,10 +7,9 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.example.kotlinapp.data.Pokemon
 
 @Composable
-fun PokemonBioConstraintLayout(modifier: Modifier, pokemon: Pokemon) {
+fun PokemonBioConstraintLayout(modifier: Modifier) {
     ConstraintLayout(
         modifier = modifier
             .then(Modifier.height(IntrinsicSize.Min)) // без этого пиздец будет
@@ -31,7 +30,7 @@ fun PokemonBioConstraintLayout(modifier: Modifier, pokemon: Pokemon) {
                     absoluteRight.linkTo(weightHeightDividerRef.absoluteLeft)
                     top.linkTo(parent.top)
                 }
-                .fillMaxHeight(), pokemon
+                .fillMaxHeight()
         )
         VerticalDivider(
             modifier = Modifier.constrainAs(weightHeightDividerRef) {
@@ -49,7 +48,7 @@ fun PokemonBioConstraintLayout(modifier: Modifier, pokemon: Pokemon) {
                     absoluteRight.linkTo(heightAbilitiesDividerRef.absoluteLeft)
                     top.linkTo(parent.top)
                 }
-                .fillMaxHeight(), pokemon
+                .fillMaxHeight()
         )
         VerticalDivider(
             modifier = Modifier.constrainAs(heightAbilitiesDividerRef) {
@@ -65,7 +64,7 @@ fun PokemonBioConstraintLayout(modifier: Modifier, pokemon: Pokemon) {
                 absoluteLeft.linkTo(heightAbilitiesDividerRef.absoluteRight)
                 absoluteRight.linkTo(parent.absoluteRight)
                 top.linkTo(parent.top)
-            }, pokemon
+            }
         )
     }
 }

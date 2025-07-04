@@ -10,15 +10,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.example.kotlinapp.data.LoadingState
 import com.example.kotlinapp.data.PokemonItem
 import kotlinx.coroutines.launch
 
 @Composable
-fun PokemonList(
-    navController: NavController // для проброски вроде был какой-то local че-то там вроде
-) {
+fun PokemonList() {
     val pokemonListViewModel = viewModel<PokemonListViewModel>()
     var pokemonItemsList = remember { mutableStateOf<List<PokemonItem>?>(null) }
     var nextPageLoadingState = remember { mutableStateOf<LoadingState?>(null) }
@@ -44,13 +41,11 @@ fun PokemonList(
         }
     }
 
-
     if (pokemonItemsList.value != null) {
         LazyColumn(state = state) {
             items(items = pokemonItemsList.value!!) { pokemonItem ->
                 PokemonElement(
                     pokemonItem = pokemonItem,
-                    navController = navController,
                     onIsFavoriteClick = { pokemonItem: PokemonItem ->
                         pokemonListViewModel.toggleFavorite(pokemonItem)
                     }

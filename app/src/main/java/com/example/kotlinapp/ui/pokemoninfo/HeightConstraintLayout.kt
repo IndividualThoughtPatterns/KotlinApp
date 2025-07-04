@@ -13,10 +13,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.kotlinapp.R
-import com.example.kotlinapp.data.Pokemon
 
 @Composable
-fun HeightConstraintLayout(modifier: Modifier, pokemon: Pokemon) {
+fun HeightConstraintLayout(modifier: Modifier) {
     ConstraintLayout(modifier = modifier) {
         val (
             heightImageRef,
@@ -38,7 +37,7 @@ fun HeightConstraintLayout(modifier: Modifier, pokemon: Pokemon) {
             contentDescription = "height image"
         )
         Text(
-            text = "${(pokemon.height).toFloat() / 10} m",
+            text = "${(LocalPokemon.current.height).toFloat() / 10} m",
             modifier = Modifier
                 .constrainAs(pokemonInfoHeightTextRef) {
                     bottom.linkTo(heightLabelTextRef.top)

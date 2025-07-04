@@ -19,23 +19,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.kotlinapp.data.PokemonItem
+import com.example.kotlinapp.ui.LocalNavController
+import com.example.kotlinapp.ui.NavRoutes
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun PokemonElement(
     pokemonItem: PokemonItem,
-    navController: NavController,
     onIsFavoriteClick: (pokemonItem: PokemonItem) -> Unit
 ) {
+    val navController = LocalNavController.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                navController.navigate("PokemonInfo/${pokemonItem.name}")
+                navController.navigate(NavRoutes.PokemonInfo(pokemonItem.name))
             }
             .padding(horizontal = 16.dp, vertical = 8.dp),
         elevation = CardDefaults.cardElevation(8.dp)

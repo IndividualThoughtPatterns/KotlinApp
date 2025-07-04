@@ -7,10 +7,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.kotlinapp.data.Pokemon
 
 @Composable
-fun AboutCard(modifier: Modifier, pokemon: Pokemon) {
+fun AboutCard(modifier: Modifier) {
     Card(
         modifier = modifier.then(
             Modifier
@@ -24,6 +23,6 @@ fun AboutCard(modifier: Modifier, pokemon: Pokemon) {
         ),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
-        AboutCardContent(pokemon)
+        AboutCardContent()
     }
 }

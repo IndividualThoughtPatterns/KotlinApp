@@ -3,39 +3,36 @@ package com.example.kotlinapp.ui.pokemoninfo
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kotlinapp.App
-import com.example.kotlinapp.data.LoadingState
 import com.example.kotlinapp.data.Pokemon
-import com.example.kotlinapp.domain.GetPokemonByNameUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.IOException
 
-class PokemonInfoViewModel(name: String) : ViewModel() {
+class PokemonInfoViewModel(val pokemonInfoName: String) : ViewModel() {
     private val _pokemonStateFlow = MutableStateFlow<Pokemon?>(null)
     val pokemonStateFlow = _pokemonStateFlow.asStateFlow()
 
-    private val _pokemonLoadingState = MutableStateFlow<LoadingState?>(null)
-    val pokemonLoadingState = _pokemonLoadingState.asStateFlow()
-
-    //    private val pokemonInfoRoute = savedStateHandle.toRoute<PokemonInfo>()
-    private val pokemonInfoName = name
+    private val _loadingState = MutableStateFlow<LoadingStateEnum?>(null)
+    val loadingState = _loadingState
 
     init {
         loadPokemon()
     }
 
     fun loadPokemon() {
+        _loadingState.value = LoadingStateEnum.STARTED
         viewModelScope.launch {
-            val pokemonWithLoadingState = GetPokemonByNameUseCase(
-                pokemonRepository = App.instance.pokemonRepository,
-                pokemonName = pokemonInfoName.toString()
-            )()
-
-            with(pokemonWithLoadingState) {
-                _pokemonStateFlow.update { pokemon }
-                _pokemonLoadingState.update { loadingState }
+            var pokemon: Pokemon? = null
+            try {
+                pokemon = App.instance.pokemonRepository.getPokemonByName(pokemonInfoName)
+                _loadingState.value = LoadingStateEnum.SUCCESS
+            } catch (e: IOException) {
+                e.printStackTrace()
+                _loadingState.update { LoadingStateEnum.FAILED }
             }
+            _pokemonStateFlow.update { pokemon }
         }
     }
 }

@@ -19,7 +19,7 @@ fun TypeElement(text: String, color: Color) {
             .padding(start = 15.dp),
         shape = RoundedCornerShape(50.dp),
         colors = CardDefaults.cardColors(
-            containerColor = color // Устанавливаем цвет фона карточки
+            containerColor = color
         )
     ) {
         Text(

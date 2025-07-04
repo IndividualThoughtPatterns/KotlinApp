@@ -13,10 +13,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.kotlinapp.R
-import com.example.kotlinapp.data.Pokemon
 
 @Composable
-fun WeightConstraintLayout(modifier: Modifier, pokemon: Pokemon) {
+fun WeightConstraintLayout(modifier: Modifier) {
     ConstraintLayout(modifier = modifier) {
         val (
             weightImageRef,
@@ -38,7 +37,7 @@ fun WeightConstraintLayout(modifier: Modifier, pokemon: Pokemon) {
             contentDescription = "weight image"
         )
         Text(
-            text = "${(pokemon.weight).toFloat() / 10} kg",
+            text = "${(LocalPokemon.current.weight).toFloat() / 10} kg",
             modifier = Modifier
                 .constrainAs(pokemonInfoWeightTextRef) {
                     bottom.linkTo(weightLabelTextRef.top)

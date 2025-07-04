@@ -8,15 +8,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.example.kotlinapp.data.Pokemon
 
 @Composable
-fun AbilitiesConstraintLayout(modifier: Modifier, pokemon: Pokemon) {
+fun AbilitiesConstraintLayout(modifier: Modifier) {
     var abilityNames = ""
-    for (i in pokemon.abilities.indices) {
-        abilityNames += pokemon.abilities[i]
-            .replaceFirstChar { it.uppercase() }
-        if (i != pokemon.abilities.size - 1) abilityNames += "\n"
+
+    with(LocalPokemon.current) {
+        for (i in abilities.indices) {
+            abilityNames += abilities[i]
+                .replaceFirstChar { it.uppercase() }
+            if (i != abilities.size - 1) abilityNames += "\n"
+        }
     }
 
     ConstraintLayout(modifier = modifier) {

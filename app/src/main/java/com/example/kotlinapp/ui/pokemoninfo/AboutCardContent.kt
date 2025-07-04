@@ -18,11 +18,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.kotlinapp.data.BaseStat
-import com.example.kotlinapp.data.Pokemon
 
 @Composable
-fun AboutCardContent(pokemon: Pokemon) {
-    with(pokemon) {
+fun AboutCardContent() {
+    with(LocalPokemon.current) {
         val mainColor = colorResource(getColor(types[0]))
         val baseStats = listOf(
             BaseStat(
@@ -70,8 +69,8 @@ fun AboutCardContent(pokemon: Pokemon) {
                     }
                     .padding(top = 50.dp)
             ) {
-                itemsIndexed(pokemon.types) { index, type ->
-                    TypeElement(type, colorResource(getColor(pokemon.types[index])))
+                itemsIndexed(types) { index, type ->
+                    TypeElement(type, colorResource(getColor(types[index])))
                 }
             }
             Text(
@@ -94,11 +93,10 @@ fun AboutCardContent(pokemon: Pokemon) {
                         absoluteRight.linkTo(parent.absoluteRight)
                         bottom.linkTo(pokemonFlavorScrollRef.top)
                         top.linkTo(aboutLabelTextRef.bottom)
-                    },
-                pokemon = pokemon
+                    }
             )
             Text(
-                text = pokemon.flavor,
+                text = flavor,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp)

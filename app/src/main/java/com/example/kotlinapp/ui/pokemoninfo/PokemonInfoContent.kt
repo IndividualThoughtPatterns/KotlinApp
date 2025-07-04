@@ -20,12 +20,11 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.kotlinapp.R
-import com.example.kotlinapp.data.Pokemon
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun PokemonInfoContent(pokemon: Pokemon) {
-    with(pokemon) {
+fun PokemonInfoContent() {
+    with(LocalPokemon.current) {
         val mainColor = colorResource(getColor(types[0]))
         ConstraintLayout(
             modifier = Modifier
@@ -91,8 +90,7 @@ fun PokemonInfoContent(pokemon: Pokemon) {
                     absoluteLeft.linkTo(parent.absoluteLeft)
 
                     top.linkTo(parent.top)
-                },
-                pokemon = pokemon
+                }
             )
 
             GlideImage(
