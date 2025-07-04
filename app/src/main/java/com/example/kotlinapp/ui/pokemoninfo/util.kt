@@ -35,9 +35,3 @@ fun getColor(type: String): Int {
         else -> R.color.unknown
     }
 }
-
-enum class LoadingStateEnum() {
-    STARTED(),
-    SUCCESS(),
-    FAILED()
-}

@@ -3,6 +3,7 @@ package com.example.kotlinapp.ui.pokemoninfo
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kotlinapp.App
+import com.example.kotlinapp.data.LoadingStateEnum
 import com.example.kotlinapp.data.Pokemon
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

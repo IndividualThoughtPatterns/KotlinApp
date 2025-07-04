@@ -5,6 +5,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.kotlinapp.data.LoadingStateEnum
 import com.example.kotlinapp.data.Pokemon
 
 val LocalPokemon = staticCompositionLocalOf<Pokemon> {
