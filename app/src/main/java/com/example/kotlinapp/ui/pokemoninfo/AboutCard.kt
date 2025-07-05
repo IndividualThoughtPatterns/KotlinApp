@@ -17,12 +17,12 @@ fun AboutCard(modifier: Modifier) {
                 .padding(
                     start = 8.dp,
                     end = 8.dp,
-                    top = 230.dp,
+                    top = 160.dp,
                     bottom = 8.dp
                 )
         ),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
-        AboutCardContent()
+        AboutCardContent(modifier = Modifier)
     }
 }

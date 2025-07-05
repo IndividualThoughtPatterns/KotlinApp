@@ -28,17 +28,19 @@ import com.example.kotlinapp.ui.NavRoutes
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun PokemonElement(
+    modifier: Modifier,
     pokemonItem: PokemonItem,
     onIsFavoriteClick: (pokemonItem: PokemonItem) -> Unit
 ) {
     val navController = LocalNavController.current
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                navController.navigate(NavRoutes.PokemonInfo(pokemonItem.name))
-            }
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = modifier.then(
+            Modifier
+                .fillMaxWidth()
+                .clickable {
+                    navController.navigate(NavRoutes.PokemonInfo(pokemonItem.name))
+                }
+                .padding(horizontal = 16.dp, vertical = 8.dp)),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Row(

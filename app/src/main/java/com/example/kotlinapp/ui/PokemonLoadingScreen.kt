@@ -1,4 +1,4 @@
-package com.example.kotlinapp.ui.pokemoninfo
+package com.example.kotlinapp.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,8 +8,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun PokemonInfoLoading() {
-    Box(modifier = Modifier.fillMaxSize()) {
+fun PokemonLoadingScreen(modifier: Modifier) {
+    Box(
+        modifier = modifier.then(
+            Modifier.fillMaxSize()
+        )
+    ) {
         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
     }
 }

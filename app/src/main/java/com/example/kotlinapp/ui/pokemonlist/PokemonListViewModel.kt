@@ -24,7 +24,8 @@ class PokemonListViewModel : ViewModel() {
     private var offsetFactor = 0
     private var offset = limit * offsetFactor
 
-    private val _nextPageLoadingStateFlow = MutableStateFlow<LoadingState?>(null)
+    private val _nextPageLoadingStateFlow =
+        MutableStateFlow<LoadingState?>(null)
     val nextPageLoadingStateFlow = _nextPageLoadingStateFlow.asStateFlow()
 
     private val pokemonItemWithIdListFlow =
@@ -44,6 +45,7 @@ class PokemonListViewModel : ViewModel() {
     }
 
     fun loadNextPage() {
+        _nextPageLoadingStateFlow.update { LoadingState.STARTED }
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val prevList = pokemonItemWithIdListFlow.value
@@ -51,21 +53,12 @@ class PokemonListViewModel : ViewModel() {
                     prevList + pokemonRepository.getPokemonList(limit = limit, offset = offset)
                 pokemonItemWithIdListFlow.value = newList
 
-                _nextPageLoadingStateFlow.update {
-                    LoadingState(
-                        isLoaded = true,
-                        error = null
-                    )
-                }
+                _nextPageLoadingStateFlow.update { LoadingState.SUCCESS }
                 offsetFactor++
                 offset = limit * offsetFactor
             } catch (e: IOException) {
-                _nextPageLoadingStateFlow.update {
-                    LoadingState(
-                        isLoaded = false,
-                        error = e
-                    )
-                }
+                e.printStackTrace()
+                _nextPageLoadingStateFlow.update { LoadingState.FAILED }
             }
         }
     }

@@ -8,8 +8,13 @@ import androidx.compose.ui.Modifier
 import androidx.constraintlayout.compose.ConstraintLayout
 
 @Composable
-fun PokemonInfoError(pokemonInfoViewModel: PokemonInfoViewModel) {
-    ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+fun PokemonInfoError(modifier: Modifier, pokemonInfoViewModel: PokemonInfoViewModel) {
+    ConstraintLayout(
+        modifier = modifier.then(
+            Modifier
+                .fillMaxSize()
+        )
+    ) {
         val (pokemonInfoErrorTextRef, pokemonInfoTryAgainButtonRef) = createRefs()
 
         Text(

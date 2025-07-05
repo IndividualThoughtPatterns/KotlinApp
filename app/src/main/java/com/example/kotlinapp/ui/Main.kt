@@ -3,13 +3,14 @@ package com.example.kotlinapp.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.kotlinapp.ui.pokemoninfo.PokemonInfoScreen
-import com.example.kotlinapp.ui.pokemonlist.PokemonList
+import com.example.kotlinapp.ui.pokemonlist.PokemonListScreen
 import kotlinx.serialization.Serializable
 
 val LocalNavController = staticCompositionLocalOf<NavController> {
@@ -27,12 +28,12 @@ fun Main() {
             startDestination = NavRoutes.PokemonList
         ) {
             composable<NavRoutes.PokemonList> {
-                PokemonList()
+                PokemonListScreen(modifier = Modifier)
             }
 
             composable<NavRoutes.PokemonInfo> {
                 val route: NavRoutes.PokemonInfo = it.toRoute()
-                PokemonInfoScreen(route.name)
+                PokemonInfoScreen(modifier = Modifier, name = route.name)
             }
         }
     }

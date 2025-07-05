@@ -2,12 +2,18 @@ package com.example.kotlinapp.ui.pokemoninfo
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -16,92 +22,70 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.kotlinapp.R
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun PokemonInfoContent() {
+fun PokemonInfoContent(modifier: Modifier) {
     with(LocalPokemon.current) {
         val mainColor = colorResource(getColor(types[0]))
-        ConstraintLayout(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(mainColor)
+
+        Box(
+            modifier = modifier.then(
+                Modifier
+                    .fillMaxSize()
+                    .background(mainColor)
+            )
         ) {
-            val (
-                pokeballImageRef,
-                pokemonInfoHeaderRef,
-                avatarImageRef,
-                aboutCardRef
-            ) = createRefs()
-
-            ConstraintLayout(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .constrainAs(pokemonInfoHeaderRef) {
-                        absoluteLeft.linkTo(parent.absoluteLeft)
-                        top.linkTo(parent.top)
-                    }
-                    .padding(start = 30.dp, end = 20.dp, top = 30.dp)
-            ) {
-                val (pokemonNameRef, pokemonIdRef) = createRefs()
-                Text(
-                    text = name.replaceFirstChar { it.uppercase() },
-                    modifier = Modifier
-                        .constrainAs(pokemonNameRef) {
-                            top.linkTo(parent.top)
-                            absoluteLeft.linkTo(parent.absoluteLeft)
-                        },
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 33.sp,
-                    color = Color.White
-                )
-                Text(
-                    text = "#" + get3digitValue(value = id),
-                    modifier = Modifier
-                        .constrainAs(pokemonIdRef) {
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                            absoluteRight.linkTo(parent.absoluteRight)
-                        },
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 17.sp,
-                    color = Color.White
-                )
-            }
-
             Image(
                 bitmap = ImageBitmap.imageResource(R.drawable.pokeball20),
                 modifier = Modifier
-                    .size(250.dp)
-                    .constrainAs(pokeballImageRef) {
-                        top.linkTo(parent.top)
-                        absoluteRight.linkTo(parent.absoluteRight)
-                    },
+                    .align(Alignment.TopEnd)
+                    .size(205.dp)
+                    .padding(top = 8.dp, end = 8.dp),
                 contentDescription = "Background pokeball"
             )
-
-            AboutCard(
-                modifier = Modifier.constrainAs(aboutCardRef) {
-                    bottom.linkTo(parent.bottom)
-                    absoluteLeft.linkTo(parent.absoluteLeft)
-
-                    top.linkTo(parent.top)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    // verticalAlignment = Alignment.Bottom // не работает
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 30.dp, end = 20.dp, top = 30.dp)
+                ) {
+                    Box(contentAlignment = Alignment.BottomCenter) {
+                        Text(
+                            text = name.replaceFirstChar { it.uppercase() },
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 33.sp,
+                            color = Color.White,
+                        )
+                    }
+                    Box(contentAlignment = Alignment.BottomCenter) {
+                        Text(
+                            text = "#" + get3digitValue(value = id),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 17.sp,
+                            color = Color.White
+                        )
+                    }
                 }
-            )
-
+                AboutCard(
+                    modifier = Modifier
+                )
+            }
             GlideImage(
                 model = bigSprite,
                 contentDescription = "pokemon avatar",
                 modifier = Modifier
-                    .size(210.dp)
-                    .constrainAs(avatarImageRef) {
-                        centerTo(parent)
-                        verticalBias = 0.15f
-                    }
+                    .size(220.dp)
+                    .align(BiasAlignment(verticalBias = -0.75f, horizontalBias = 0f))
             )
         }
     }

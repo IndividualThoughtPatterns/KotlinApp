@@ -4,31 +4,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.kotlinapp.data.LoadingStateEnum
+import com.example.kotlinapp.data.LoadingState
 import com.example.kotlinapp.data.Pokemon
+import com.example.kotlinapp.ui.PokemonLoadingScreen
 
 val LocalPokemon = staticCompositionLocalOf<Pokemon> {
     error("pokemon not present")
 }
 
 @Composable
-fun PokemonInfoScreen(name: String) {
+fun PokemonInfoScreen(modifier: Modifier, name: String) {
     val pokemonInfoViewModel =
         viewModel<PokemonInfoViewModel>(factory = PokemonInfoViewModelFactory(name))
-    val loadingState = pokemonInfoViewModel.loadingState.collectAsState()
-    var pokemon = pokemonInfoViewModel.pokemonStateFlow.collectAsState()
+    val loadingState = pokemonInfoViewModel.loadingStateFlow.collectAsState()
+    var pokemonState = pokemonInfoViewModel.pokemonStateFlow.collectAsState()
 
     when (loadingState.value) {
-        null, LoadingStateEnum.STARTED -> PokemonInfoLoading()
-        LoadingStateEnum.SUCCESS -> {
+        null, LoadingState.STARTED -> PokemonLoadingScreen(modifier = Modifier)
+        LoadingState.SUCCESS -> {
             CompositionLocalProvider(
-                LocalPokemon provides pokemon.value!!
+                LocalPokemon provides pokemonState.value!!
             ) {
-                PokemonInfoContent()
+                PokemonInfoContent(modifier = Modifier)
             }
         }
 
-        LoadingStateEnum.FAILED -> PokemonInfoError(pokemonInfoViewModel = pokemonInfoViewModel)
+        LoadingState.FAILED -> PokemonInfoError(
+            modifier = Modifier,
+            pokemonInfoViewModel = pokemonInfoViewModel
+        )
     }
 }

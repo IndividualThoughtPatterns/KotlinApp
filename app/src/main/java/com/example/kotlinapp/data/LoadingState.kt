@@ -1,6 +1,7 @@
 package com.example.kotlinapp.data
 
-data class LoadingState(
-    val isLoaded: Boolean,
-    val error: Throwable?
-)
+enum class LoadingState() {
+    STARTED(),
+    SUCCESS(),
+    FAILED()
+}

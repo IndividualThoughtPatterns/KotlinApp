@@ -13,10 +13,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun TypeElement(text: String, color: Color) {
+fun TypeElement(modifier: Modifier, text: String, color: Color) {
     Card(
-        modifier = Modifier
-            .padding(start = 15.dp),
+        modifier = modifier.then(
+            Modifier
+                .padding(start = 15.dp)
+        ),
         shape = RoundedCornerShape(50.dp),
         colors = CardDefaults.cardColors(
             containerColor = color
