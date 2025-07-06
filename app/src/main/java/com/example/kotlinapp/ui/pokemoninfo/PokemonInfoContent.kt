@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
@@ -25,10 +27,35 @@ import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.kotlinapp.R
+import com.example.kotlinapp.data.LoadingState
+import com.example.kotlinapp.ui.PokemonLoadingScreen
+
+@Composable
+fun PokemonInfoContent(
+    state: PokemonInfoScreenState,
+    onEvent: (PokemonInfoEvent) -> Unit,
+    modifier: Modifier
+) {
+    when (state.loadingState) {
+        LoadingState.STARTED -> PokemonLoadingScreen(modifier = Modifier)
+        LoadingState.SUCCESS -> {
+            CompositionLocalProvider(
+                LocalPokemon provides state.pokemon!!
+            ) {
+                LoadedContent(modifier = Modifier)
+            }
+        }
+
+        LoadingState.FAILED -> ErrorContent(
+            modifier = Modifier,
+            onEvent = onEvent
+        )
+    }
+}
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun PokemonInfoContent(modifier: Modifier) {
+private fun LoadedContent(modifier: Modifier) {
     with(LocalPokemon.current) {
         val mainColor = colorResource(getColor(types[0]))
 
@@ -87,6 +114,31 @@ fun PokemonInfoContent(modifier: Modifier) {
                     .size(220.dp)
                     .align(BiasAlignment(verticalBias = -0.75f, horizontalBias = 0f))
             )
+        }
+    }
+}
+
+@Composable
+private fun ErrorContent(
+    modifier: Modifier,
+    onEvent: (PokemonInfoEvent) -> Unit
+) {
+    Column(
+        modifier = modifier.then(
+            Modifier
+                .padding(10.dp)
+                .fillMaxSize()
+        )
+    ) {
+        Text(
+            text = "Ошибка сети. Проверьте соединение с интернетом и попробуйте еще раз.",
+        )
+        Button(
+            onClick = { onEvent(PokemonInfoEvent.OnRetryClick) },
+            modifier = Modifier
+                .align(Alignment.End)
+        ) {
+            Text(text = "Загрузить")
         }
     }
 }

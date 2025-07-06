@@ -10,7 +10,6 @@ import com.example.kotlinapp.data.source.PokemonRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -24,28 +23,48 @@ class PokemonListViewModel : ViewModel() {
     private var offsetFactor = 0
     private var offset = limit * offsetFactor
 
-    private val _nextPageLoadingStateFlow =
-        MutableStateFlow<LoadingState?>(null)
-    val nextPageLoadingStateFlow = _nextPageLoadingStateFlow.asStateFlow()
+    private val nextPageLoadingStateFlow =
+        MutableStateFlow<LoadingState>(LoadingState.STARTED)
 
     private val pokemonItemWithIdListFlow =
         MutableStateFlow<List<PokemonRepository.PokemonItemWithId>>(
             emptyList()
         )
 
-    val pokemonItemListFlow = combine(
+    val state = combine(
         pokemonItemWithIdListFlow,
-        favoritePokemonDao.getAllAsFlow()
-    ) { pokemonList, favorites ->
-        buildPokemonItems(pokemonList, favorites)
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+        favoritePokemonDao.getAllAsFlow(),
+        nextPageLoadingStateFlow
+    ) { pokemonList, favorites, loadingState ->
+        PokemonListScreenState(
+            pokemonItemList = buildPokemonItems(pokemonList, favorites),
+            loadingState = loadingState
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = PokemonListScreenState(loadingState = LoadingState.STARTED)
+    )
 
     init {
         loadNextPage()
     }
 
+    fun onEvent(event: PokemonListEvent) {
+        when (event) {
+            is PokemonListEvent.OnToggleFavoriteClick -> {
+                toggleFavorite(event.pokemonItem)
+            }
+
+            PokemonListEvent.OnScrolledBottom -> {
+                loadNextPage()
+            }
+        }
+    }
+
     fun loadNextPage() {
-        _nextPageLoadingStateFlow.update { LoadingState.STARTED }
+        nextPageLoadingStateFlow.update { LoadingState.STARTED }
+
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val prevList = pokemonItemWithIdListFlow.value
@@ -53,12 +72,12 @@ class PokemonListViewModel : ViewModel() {
                     prevList + pokemonRepository.getPokemonList(limit = limit, offset = offset)
                 pokemonItemWithIdListFlow.value = newList
 
-                _nextPageLoadingStateFlow.update { LoadingState.SUCCESS }
+                nextPageLoadingStateFlow.update { LoadingState.SUCCESS }
                 offsetFactor++
                 offset = limit * offsetFactor
             } catch (e: IOException) {
                 e.printStackTrace()
-                _nextPageLoadingStateFlow.update { LoadingState.FAILED }
+                nextPageLoadingStateFlow.update { LoadingState.FAILED }
             }
         }
     }

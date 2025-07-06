@@ -79,7 +79,7 @@ fun AboutCardContent(modifier: Modifier) {
                 color = mainColor,
                 textAlign = TextAlign.Center
             )
-            PokemonBioConstraintLayout(
+            PokemonBioSection(
                 modifier = Modifier
                     .fillMaxWidth()
             )

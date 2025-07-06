@@ -10,11 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun PokemonBioConstraintLayout(modifier: Modifier) {
-
+fun PokemonBioSection(modifier: Modifier) {
     Row(
         modifier = modifier.then(
-            Modifier.height(IntrinsicSize.Min) // без этого пиздец будет
+            Modifier.height(IntrinsicSize.Min) // без этого не будет работать
         ),
         horizontalArrangement = Arrangement.SpaceAround
     ) {

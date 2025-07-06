@@ -3,7 +3,6 @@ package com.example.kotlinapp.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -28,12 +27,12 @@ fun Main() {
             startDestination = NavRoutes.PokemonList
         ) {
             composable<NavRoutes.PokemonList> {
-                PokemonListScreen(modifier = Modifier)
+                PokemonListScreen()
             }
 
             composable<NavRoutes.PokemonInfo> {
                 val route: NavRoutes.PokemonInfo = it.toRoute()
-                PokemonInfoScreen(modifier = Modifier, name = route.name)
+                PokemonInfoScreen(name = route.name)
             }
         }
     }

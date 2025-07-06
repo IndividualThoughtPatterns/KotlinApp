@@ -30,7 +30,7 @@ import com.example.kotlinapp.ui.NavRoutes
 fun PokemonElement(
     modifier: Modifier,
     pokemonItem: PokemonItem,
-    onIsFavoriteClick: (pokemonItem: PokemonItem) -> Unit
+    onToggleFavoriteClick: (pokemonItem: PokemonItem) -> Unit
 ) {
     val navController = LocalNavController.current
     Card(
@@ -63,7 +63,7 @@ fun PokemonElement(
                 style = MaterialTheme.typography.headlineSmall,
             )
             IconButton(
-                onClick = { pokemonItem.let(onIsFavoriteClick) },
+                onClick = { onToggleFavoriteClick(pokemonItem) },
                 modifier = Modifier
                     .weight(2f)
             ) {
