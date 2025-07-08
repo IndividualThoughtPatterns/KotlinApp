@@ -1,5 +1,6 @@
 package com.example.kotlinapp.ui
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -22,17 +23,19 @@ fun Main() {
     CompositionLocalProvider(
         LocalNavController provides navController,
     ) {
-        NavHost(
-            navController = navController,
-            startDestination = NavRoutes.PokemonList
-        ) {
-            composable<NavRoutes.PokemonList> {
-                PokemonListScreen()
-            }
+        MaterialTheme {
+            NavHost(
+                navController = navController,
+                startDestination = NavRoutes.PokemonList
+            ) {
+                composable<NavRoutes.PokemonList> {
+                    PokemonListScreen()
+                }
 
-            composable<NavRoutes.PokemonInfo> {
-                val route: NavRoutes.PokemonInfo = it.toRoute()
-                PokemonInfoScreen(name = route.name)
+                composable<NavRoutes.PokemonInfo> {
+                    val route: NavRoutes.PokemonInfo = it.toRoute()
+                    PokemonInfoScreen(name = route.name)
+                }
             }
         }
     }

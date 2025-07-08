@@ -8,7 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun PokemonLoadingScreen(modifier: Modifier) {
+fun PokemonLoadingScreen(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.then(
             Modifier.fillMaxSize()

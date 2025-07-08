@@ -29,7 +29,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
@@ -46,43 +45,35 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.kotlinapp.R
 import com.example.kotlinapp.data.BaseStat
 import com.example.kotlinapp.data.LoadingState
+import com.example.kotlinapp.data.Pokemon
 import com.example.kotlinapp.ui.PokemonLoadingScreen
 
 @Composable
 fun PokemonInfoContent(
     state: PokemonInfoScreenState,
     onEvent: (PokemonInfoEvent) -> Unit,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     when (state.loadingState) {
-        LoadingState.STARTED -> PokemonLoadingScreen(modifier = Modifier)
+        LoadingState.STARTED -> PokemonLoadingScreen()
         LoadingState.SUCCESS -> {
-            CompositionLocalProvider(
-                LocalPokemon provides state.pokemon!!
-            ) {
-                LoadedContent(modifier = Modifier)
-            }
+            LoadedContent(state.pokemon!!)
         }
 
-        LoadingState.FAILED -> ErrorContent(
-            modifier = Modifier,
-            onEvent = onEvent
-        )
+        LoadingState.FAILED -> ErrorContent(onEvent = onEvent)
     }
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-private fun LoadedContent(modifier: Modifier) {
-    with(LocalPokemon.current) {
+private fun LoadedContent(pokemon: Pokemon, modifier: Modifier = Modifier) {
+    with(pokemon) {
         val mainColor = colorResource(getColor(types[0]))
 
         Box(
-            modifier = modifier.then(
-                Modifier
-                    .fillMaxSize()
-                    .background(mainColor)
-            )
+            modifier = modifier
+                .fillMaxSize()
+                .background(mainColor)
         ) {
             Image(
                 bitmap = ImageBitmap.imageResource(R.drawable.pokeball20),
@@ -121,9 +112,7 @@ private fun LoadedContent(modifier: Modifier) {
                         )
                     }
                 }
-                AboutCard(
-                    modifier = Modifier
-                )
+                AboutCard(pokemon)
             }
             GlideImage(
                 model = bigSprite,
@@ -138,15 +127,13 @@ private fun LoadedContent(modifier: Modifier) {
 
 @Composable
 private fun ErrorContent(
-    modifier: Modifier,
-    onEvent: (PokemonInfoEvent) -> Unit
+    onEvent: (PokemonInfoEvent) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.then(
-            Modifier
-                .padding(10.dp)
-                .fillMaxSize()
-        )
+        modifier = modifier
+            .padding(10.dp)
+            .fillMaxSize()
     ) {
         Text(
             text = "Ошибка сети. Проверьте соединение с интернетом и попробуйте еще раз.",
@@ -162,27 +149,25 @@ private fun ErrorContent(
 }
 
 @Composable
-fun AboutCard(modifier: Modifier) {
+fun AboutCard(pokemon: Pokemon, modifier: Modifier = Modifier) {
     Card(
-        modifier = modifier.then(
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = 8.dp,
-                    end = 8.dp,
-                    top = 160.dp,
-                    bottom = 8.dp
-                )
-        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                start = 8.dp,
+                end = 8.dp,
+                top = 160.dp,
+                bottom = 8.dp
+            ),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
-        AboutCardContent(modifier = Modifier)
+        AboutCardContent(pokemon)
     }
 }
 
 @Composable
-fun AboutCardContent(modifier: Modifier) {
-    with(LocalPokemon.current) {
+fun AboutCardContent(pokemon: Pokemon, modifier: Modifier = Modifier) {
+    with(pokemon) {
         val mainColor = colorResource(getColor(types[0]))
         val baseStats = listOf(
             BaseStat(
@@ -207,11 +192,9 @@ fun AboutCardContent(modifier: Modifier) {
             ),
         )
         Column(
-            modifier = modifier.then(
-                Modifier
-                    .padding(horizontal = 20.dp)
-                    .fillMaxSize()
-            ),
+            modifier = modifier
+                .padding(horizontal = 20.dp)
+                .fillMaxSize(),
             verticalArrangement = Arrangement.SpaceAround,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -221,7 +204,7 @@ fun AboutCardContent(modifier: Modifier) {
             ) {
                 itemsIndexed(types) { index, type ->
                     TypeElement(
-                        modifier = Modifier,
+                        modifier = Modifier.padding(start = 15.dp),
                         text = type,
                         color = colorResource(
                             getColor(types[index])
@@ -236,10 +219,7 @@ fun AboutCardContent(modifier: Modifier) {
                 color = mainColor,
                 textAlign = TextAlign.Center
             )
-            PokemonBioSection(
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
+            PokemonBioSection(pokemon)
             Text(
                 text = flavor,
                 modifier = Modifier
@@ -263,7 +243,6 @@ fun AboutCardContent(modifier: Modifier) {
             ) {
                 items(baseStats) { baseStat ->
                     BaseStatElement(
-                        modifier = Modifier,
                         baseStat = baseStat,
                         color = mainColor
                     )
@@ -274,27 +253,25 @@ fun AboutCardContent(modifier: Modifier) {
 }
 
 @Composable
-fun PokemonBioSection(modifier: Modifier) {
+fun PokemonBioSection(pokemon: Pokemon, modifier: Modifier = Modifier) {
     Row(
-        modifier = modifier.then(
-            Modifier.height(IntrinsicSize.Min) // без этого не будет работать
-        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min), // без этого не будет работать
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-        WeightSection(modifier = Modifier.fillMaxHeight())
-        VerticalDivider(modifier = Modifier)
-        HeightSection(modifier = Modifier.fillMaxHeight())
-        VerticalDivider(modifier = Modifier)
-        AbilitiesSection(modifier = Modifier)
+        WeightSection(pokemon)
+        VerticalDivider()
+        HeightSection(pokemon)
+        VerticalDivider()
+        AbilitiesSection(pokemon)
     }
 }
 
 @Composable
-fun HeightSection(modifier: Modifier) {
+fun HeightSection(pokemon: Pokemon, modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.then(
-            Modifier.fillMaxHeight()
-        ),
+        modifier = modifier.fillMaxHeight(),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -307,7 +284,7 @@ fun HeightSection(modifier: Modifier) {
                 contentDescription = "height image"
             )
             Text(
-                text = "${(LocalPokemon.current.height).toFloat() / 10} m",
+                text = "${(pokemon.height).toFloat() / 10} m",
                 modifier = Modifier
                     .padding(bottom = 10.dp),
             )
@@ -322,11 +299,9 @@ fun HeightSection(modifier: Modifier) {
 }
 
 @Composable
-fun WeightSection(modifier: Modifier) {
+fun WeightSection(pokemon: Pokemon, modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.then(
-            Modifier.fillMaxHeight()
-        ),
+        modifier = modifier.fillMaxHeight(),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -339,7 +314,7 @@ fun WeightSection(modifier: Modifier) {
                 contentDescription = "weight image"
             )
             Text(
-                text = "${(LocalPokemon.current.weight).toFloat() / 10} kg",
+                text = "${(pokemon.weight).toFloat() / 10} kg",
                 modifier = Modifier
                     .padding(bottom = 10.dp),
             )
@@ -354,10 +329,10 @@ fun WeightSection(modifier: Modifier) {
 }
 
 @Composable
-fun AbilitiesSection(modifier: Modifier) {
+fun AbilitiesSection(pokemon: Pokemon, modifier: Modifier = Modifier) {
     var abilityNames = ""
 
-    with(LocalPokemon.current) {
+    with(pokemon) {
         for (i in abilities.indices) {
             abilityNames += abilities[i]
                 .replaceFirstChar { it.uppercase() }
@@ -366,9 +341,7 @@ fun AbilitiesSection(modifier: Modifier) {
     }
 
     Column(
-        modifier = modifier.then(
-            Modifier.fillMaxHeight()
-        ),
+        modifier = modifier.fillMaxHeight(),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -388,13 +361,11 @@ fun AbilitiesSection(modifier: Modifier) {
 }
 
 @Composable
-fun BaseStatElement(modifier: Modifier, baseStat: BaseStat, color: Color) {
+fun BaseStatElement(baseStat: BaseStat, color: Color, modifier: Modifier = Modifier) {
     Row(
-        modifier = modifier.then(
-            Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
-        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -419,12 +390,9 @@ fun BaseStatElement(modifier: Modifier, baseStat: BaseStat, color: Color) {
 }
 
 @Composable
-fun TypeElement(modifier: Modifier, text: String, color: Color) {
+fun TypeElement(text: String, color: Color, modifier: Modifier = Modifier) {
     Card(
-        modifier = modifier.then(
-            Modifier
-                .padding(start = 15.dp)
-        ),
+        modifier = modifier,
         shape = RoundedCornerShape(50.dp),
         colors = CardDefaults.cardColors(
             containerColor = color

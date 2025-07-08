@@ -16,14 +16,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,10 +36,8 @@ import com.example.kotlinapp.ui.PokemonLoadingScreen
 fun PokemonListContent(
     state: PokemonListScreenState,
     onEvent: (PokemonListEvent) -> Unit,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-
     val lazyColumnState = rememberLazyListState()
     LaunchedEffect(lazyColumnState) {
         snapshotFlow {
@@ -59,59 +52,40 @@ fun PokemonListContent(
         }
     }
 
-    Scaffold(
-        modifier = modifier,
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { padding ->
-        LazyColumn(
-            modifier = Modifier.padding(padding),
-            state = lazyColumnState
-        ) {
-            items(items = state.pokemonItemList) { pokemonItem ->
-                PokemonElement(
-                    modifier = Modifier,
-                    pokemonItem = pokemonItem,
-                    onToggleFavoriteClick = { pokemonItem: PokemonItem ->
-                        onEvent(PokemonListEvent.OnToggleFavoriteClick(pokemonItem))
-                    }
-                )
-            }
+    LazyColumn(
+        state = lazyColumnState,
+        modifier = modifier
+    ) {
+        items(items = state.pokemonItemList) { pokemonItem ->
+            PokemonElement(
+                pokemonItem = pokemonItem,
+                onToggleFavoriteClick = { pokemonItem: PokemonItem ->
+                    onEvent(PokemonListEvent.OnToggleFavoriteClick(pokemonItem))
+                },
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            )
         }
+    }
 
-        when (state.loadingState) {
-            LoadingState.STARTED -> {
-                PokemonLoadingScreen(modifier = Modifier)
-            }
-
-            LoadingState.SUCCESS -> {}
-            LoadingState.FAILED -> {
-                LaunchedEffect(state.loadingState) {
-                    snackbarHostState.showSnackbar(
-                        message = "Ошибка сети",
-                        duration = SnackbarDuration.Short
-                    )
-                }
-            }
-        }
+    if (state.loadingState == LoadingState.STARTED) {
+        PokemonLoadingScreen(modifier = Modifier)
     }
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun PokemonElement(
-    modifier: Modifier,
     pokemonItem: PokemonItem,
-    onToggleFavoriteClick: (pokemonItem: PokemonItem) -> Unit
+    onToggleFavoriteClick: (pokemonItem: PokemonItem) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val navController = LocalNavController.current
     Card(
-        modifier = modifier.then(
-            Modifier
-                .fillMaxWidth()
-                .clickable {
-                    navController.navigate(NavRoutes.PokemonInfo(pokemonItem.name))
-                }
-                .padding(horizontal = 16.dp, vertical = 8.dp)),
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable {
+                navController.navigate(NavRoutes.PokemonInfo(pokemonItem.name))
+            },
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Row(
