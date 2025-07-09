@@ -7,13 +7,14 @@ import com.example.kotlinapp.data.FavoritePokemon
 import com.example.kotlinapp.data.LoadingState
 import com.example.kotlinapp.data.PokemonItem
 import com.example.kotlinapp.data.source.PokemonRepository
+import com.example.kotlinapp.ui.CommandFlow
+import com.example.kotlinapp.ui.emit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.IOException
 
 class PokemonListViewModel : ViewModel() {
     private var favoritePokemonDao = App.instance.db.favoritePokemonDao()
@@ -30,6 +31,8 @@ class PokemonListViewModel : ViewModel() {
     private val _state =
         MutableStateFlow<PokemonListScreenState>(PokemonListScreenState(LoadingState.Loading))
     val state = _state.asStateFlow()
+
+    val commandFlow = CommandFlow<PokemonListScreenUiCommand>(viewModelScope)
 
     init {
         loadNextPage()
@@ -74,9 +77,11 @@ class PokemonListViewModel : ViewModel() {
                     offsetFactor++
                     offset = limit * offsetFactor
                 }
-            } catch (e: IOException) {
-                e.printStackTrace()
-                _state.update { PokemonListScreenState(LoadingState.Error(e)) }
+            } catch (exception: Exception) {
+                _state.update { PokemonListScreenState(LoadingState.Error(exception)) } // разобраться зачем он тогда теперь
+                commandFlow emit PokemonListScreenUiCommand.ShowErrorMessage(
+                    message = exception.message.toString()
+                )
             }
         }
     }

@@ -11,8 +11,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.kotlinapp.data.LoadingState
+import kotlinx.coroutines.launch
 
 @Composable
 fun PokemonListScreen() {
@@ -20,12 +21,18 @@ fun PokemonListScreen() {
     val state by pokemonListViewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(state.loadingState is LoadingState.Error) {
-        if (state.loadingState is LoadingState.Error) {
-            snackbarHostState.showSnackbar(
-                message = "Ошибка сети",
-                duration = SnackbarDuration.Short
-            )
+    LaunchedEffect(key1 = Unit) {
+        pokemonListViewModel.viewModelScope.launch {
+            pokemonListViewModel.commandFlow.collectSafely {
+                when (it) {
+                    is PokemonListScreenUiCommand.ShowErrorMessage -> {
+                        snackbarHostState.showSnackbar(
+                            message = "Ошибка сети",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                }
+            }
         }
     }
 
