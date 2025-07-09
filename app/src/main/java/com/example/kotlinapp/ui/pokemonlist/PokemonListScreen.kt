@@ -20,6 +20,15 @@ fun PokemonListScreen() {
     val state by pokemonListViewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    LaunchedEffect(state.loadingState is LoadingState.Error) {
+        if (state.loadingState is LoadingState.Error) {
+            snackbarHostState.showSnackbar(
+                message = "Ошибка сети",
+                duration = SnackbarDuration.Short
+            )
+        }
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
@@ -28,13 +37,5 @@ fun PokemonListScreen() {
             onEvent = pokemonListViewModel::onEvent,
             modifier = Modifier.padding(padding)
         )
-        LaunchedEffect(state.loadingState == LoadingState.FAILED) {
-            if (state.loadingState == LoadingState.FAILED) {
-                snackbarHostState.showSnackbar(
-                    message = "Ошибка сети",
-                    duration = SnackbarDuration.Short
-                )
-            }
-        }
     }
 }

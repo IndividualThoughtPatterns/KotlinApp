@@ -19,6 +19,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +41,8 @@ fun PokemonListContent(
     modifier: Modifier = Modifier
 ) {
     val lazyColumnState = rememberLazyListState()
+    val pokemonItemList = remember { mutableStateOf<List<PokemonItem>>(emptyList()) }
+
     LaunchedEffect(lazyColumnState) {
         snapshotFlow {
             !lazyColumnState.canScrollForward &&
@@ -56,7 +60,7 @@ fun PokemonListContent(
         state = lazyColumnState,
         modifier = modifier
     ) {
-        items(items = state.pokemonItemList) { pokemonItem ->
+        items(items = pokemonItemList.value) { pokemonItem ->
             PokemonElement(
                 pokemonItem = pokemonItem,
                 onToggleFavoriteClick = { pokemonItem: PokemonItem ->
@@ -67,8 +71,10 @@ fun PokemonListContent(
         }
     }
 
-    if (state.loadingState == LoadingState.STARTED) {
+    if (state.loadingState is LoadingState.Loading) {
         PokemonLoadingScreen(modifier = Modifier)
+    } else if (state.loadingState is LoadingState.Loaded) {
+        pokemonItemList.value = state.loadingState.value
     }
 }
 

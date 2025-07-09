@@ -9,9 +9,8 @@ import com.example.kotlinapp.data.PokemonItem
 import com.example.kotlinapp.data.source.PokemonRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -23,28 +22,14 @@ class PokemonListViewModel : ViewModel() {
     private var offsetFactor = 0
     private var offset = limit * offsetFactor
 
-    private val nextPageLoadingStateFlow =
-        MutableStateFlow<LoadingState>(LoadingState.STARTED)
-
     private val pokemonItemWithIdListFlow =
         MutableStateFlow<List<PokemonRepository.PokemonItemWithId>>(
             emptyList()
         )
 
-    val state = combine(
-        pokemonItemWithIdListFlow,
-        favoritePokemonDao.getAllAsFlow(),
-        nextPageLoadingStateFlow
-    ) { pokemonList, favorites, loadingState ->
-        PokemonListScreenState(
-            pokemonItemList = buildPokemonItems(pokemonList, favorites),
-            loadingState = loadingState
-        )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = PokemonListScreenState(loadingState = LoadingState.STARTED)
-    )
+    private val _state =
+        MutableStateFlow<PokemonListScreenState>(PokemonListScreenState(LoadingState.Loading))
+    val state = _state.asStateFlow()
 
     init {
         loadNextPage()
@@ -63,7 +48,7 @@ class PokemonListViewModel : ViewModel() {
     }
 
     fun loadNextPage() {
-        nextPageLoadingStateFlow.update { LoadingState.STARTED }
+        _state.update { PokemonListScreenState(LoadingState.Loading) }
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -72,12 +57,26 @@ class PokemonListViewModel : ViewModel() {
                     prevList + pokemonRepository.getPokemonList(limit = limit, offset = offset)
                 pokemonItemWithIdListFlow.value = newList
 
-                nextPageLoadingStateFlow.update { LoadingState.SUCCESS }
-                offsetFactor++
-                offset = limit * offsetFactor
+                combine(
+                    pokemonItemWithIdListFlow,
+                    favoritePokemonDao.getAllAsFlow(),
+                ) { pokemonList, favorites ->
+                    PokemonListScreenState(
+                        loadingState = LoadingState.Loaded(
+                            value = buildPokemonItems(
+                                pokemonList,
+                                favorites
+                            )
+                        )
+                    )
+                }.collect {
+                    _state.value = it
+                    offsetFactor++
+                    offset = limit * offsetFactor
+                }
             } catch (e: IOException) {
                 e.printStackTrace()
-                nextPageLoadingStateFlow.update { LoadingState.FAILED }
+                _state.update { PokemonListScreenState(LoadingState.Error(e)) }
             }
         }
     }

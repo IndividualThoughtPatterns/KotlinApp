@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kotlinapp.App
 import com.example.kotlinapp.data.LoadingState
+import com.example.kotlinapp.data.LoadingState.Loaded
+import com.example.kotlinapp.data.LoadingState.Loading
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -12,7 +14,7 @@ import java.io.IOException
 
 class PokemonInfoViewModel(val pokemonInfoName: String) : ViewModel() {
     private val _state = MutableStateFlow<PokemonInfoScreenState>(
-        PokemonInfoScreenState(loadingState = LoadingState.STARTED)
+        PokemonInfoScreenState(loadingState = Loading)
     )
     val state = _state.asStateFlow()
 
@@ -29,19 +31,23 @@ class PokemonInfoViewModel(val pokemonInfoName: String) : ViewModel() {
     }
 
     fun loadPokemon() {
-        _state.update { PokemonInfoScreenState(loadingState = LoadingState.STARTED) }
+        _state.update { PokemonInfoScreenState(loadingState = Loading) }
 
         viewModelScope.launch {
             try {
                 _state.update {
                     PokemonInfoScreenState(
-                        pokemon = App.instance.pokemonRepository.getPokemonByName(pokemonInfoName),
-                        loadingState = LoadingState.SUCCESS
+                        loadingState = Loaded(
+                            value = App.instance.pokemonRepository.getPokemonByName(
+                                pokemonInfoName
+                            )
+                        )
                     )
+
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
-                _state.update { PokemonInfoScreenState(loadingState = LoadingState.FAILED) }
+                _state.update { PokemonInfoScreenState(loadingState = LoadingState.Error(e)) }
             }
         }
     }

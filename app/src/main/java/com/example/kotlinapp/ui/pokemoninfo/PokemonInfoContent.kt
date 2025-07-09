@@ -55,12 +55,12 @@ fun PokemonInfoContent(
     modifier: Modifier = Modifier
 ) {
     when (state.loadingState) {
-        LoadingState.STARTED -> PokemonLoadingScreen()
-        LoadingState.SUCCESS -> {
-            LoadedContent(state.pokemon!!)
+        is LoadingState.Loading -> PokemonLoadingScreen()
+        is LoadingState.Loaded -> {
+            LoadedContent(state.loadingState.value)
         }
 
-        LoadingState.FAILED -> ErrorContent(onEvent = onEvent)
+        is LoadingState.Error -> ErrorContent(onEvent = onEvent)
     }
 }
 
