@@ -3,6 +3,7 @@ package com.example.kotlinapp.ui.pokemoninfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
@@ -15,4 +16,10 @@ fun PokemonInfoScreen(name: String) {
         state = state,
         onEvent = pokemonInfoViewModel::onEvent
     )
+}
+
+@Preview(showSystemUi = true)
+@Composable
+fun PokemonInfoScreenPreview() {
+    PokemonInfoScreen("Bulbasaur")
 }
