@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun PokemonListScreen() {
-    val pokemonListViewModel = viewModel<PokemonListViewModel>()
+    val pokemonListViewModel = viewModel { PokemonListViewModel() }
     val state by pokemonListViewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 

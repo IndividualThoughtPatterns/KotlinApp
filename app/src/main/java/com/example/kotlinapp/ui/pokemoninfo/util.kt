@@ -1,6 +1,7 @@
 package com.example.kotlinapp.ui.pokemoninfo
 
 import com.example.kotlinapp.R
+import com.example.kotlinapp.data.BaseStat
 
 fun get3digitValue(value: Int): String {
     return when (value) {
@@ -34,4 +35,37 @@ fun getColor(type: String): Int {
         "unknown" -> R.color.unknown
         else -> R.color.unknown
     }
+}
+
+fun getBaseStatProgress(baseStat: BaseStat) = { baseStat.baseStatValue.toFloat() / 233f }
+
+val getPokemonHeightInMeters = { height: Int -> "${(height).toFloat() / 10} m" }
+
+val getPokemonAbilitiesString = { abilities: List<String> ->
+    abilities.joinToString(separator = "\n") { it.replaceFirstChar { it.uppercase() } }
+}
+
+fun getBaseStatList(hp: Int, attack: Int, defense: Int, speed: Int): List<BaseStat> {
+    return listOf(
+        BaseStat(
+            baseStatName = "HP",
+            baseStatStringValue = get3digitValue(value = hp),
+            baseStatValue = hp
+        ),
+        BaseStat(
+            baseStatName = "ATK",
+            baseStatStringValue = get3digitValue(value = attack),
+            baseStatValue = attack
+        ),
+        BaseStat(
+            baseStatName = "DEF",
+            baseStatStringValue = get3digitValue(value = defense),
+            baseStatValue = defense
+        ),
+        BaseStat(
+            baseStatName = "SPD",
+            baseStatStringValue = get3digitValue(value = speed),
+            baseStatValue = speed
+        ),
+    )
 }

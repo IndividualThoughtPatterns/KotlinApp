@@ -3,7 +3,7 @@ package com.example.kotlinapp.data
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
-class Pokemon(
+data class Pokemon(
     val id: Int,
     val name: String,
     val smallSprite: String,

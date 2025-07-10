@@ -34,11 +34,14 @@ import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -68,8 +71,48 @@ fun PokemonInfoContent(
 //@Preview(showSystemUi = true)
 //@Composable
 //fun PokemonInfoContentPreview() {
-//    PokemonInfoContent()
+//    val scrollState = rememberScrollState()
+//    Column(modifier = Modifier.fillMaxSize().verticalScroll(scrollState)) {
+//        PokemonInfoContent(
+//            state = PokemonInfoScreenState(loadingState = LoadingState.Loading),
+//            onEvent = {}
+//        )
+//        PokemonInfoContent(
+//            state = PokemonInfoScreenState(loadingState = LoadingState.Error(Throwable())),
+//            onEvent = {}
+//        )
+//        PokemonInfoContent(
+//            state = PokemonInfoScreenState(
+//                loadingState = LoadingState.Loaded(
+//                    Pokemon(
+//                        id = 1,
+//                        name = "Bulbasaur",
+//                        smallSprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+//                        bigSprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png",
+//                        types = listOf("grass", "poison"),
+//                        height = 7,
+//                        weight = 69,
+//                        abilities = listOf("overgrow", "chlorophyll"),
+//                        hp = 45,
+//                        attack = 49,
+//                        defense = 49,
+//                        speed = 45,
+//                        flavor = "There is a plant seed on its back right from the day this POKéMON is born. The seed slowly grows larger."
+//                )
+//                )
+//            ),
+//            onEvent = {}
+//        )
+//    }
 //}
+
+@Preview
+@Composable
+fun PokemonInfoContentPreview(
+    @PreviewParameter(PokemonInfoUiStateProvider::class) state: PokemonInfoScreenState
+) {
+    PokemonInfoContent(state = state, onEvent = {})
+}
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
@@ -79,7 +122,8 @@ private fun LoadedContent(pokemon: Pokemon, modifier: Modifier = Modifier) {
 
         Box(
             modifier = modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .height(LocalConfiguration.current.screenHeightDp.dp)
                 .background(mainColor)
         ) {
             Image(
@@ -140,7 +184,8 @@ private fun ErrorContent(
     Column(
         modifier = modifier
             .padding(10.dp)
-            .fillMaxSize()
+            .fillMaxWidth()
+            .height(LocalConfiguration.current.screenHeightDp.dp)
     ) {
         Text(
             text = "Ошибка сети. Проверьте соединение с интернетом и попробуйте еще раз.",
@@ -176,28 +221,6 @@ fun AboutCard(pokemon: Pokemon, modifier: Modifier = Modifier) {
 fun AboutCardContent(pokemon: Pokemon, modifier: Modifier = Modifier) {
     with(pokemon) {
         val mainColor = colorResource(getColor(types[0]))
-        val baseStats = listOf(
-            BaseStat(
-                baseStatName = "HP",
-                baseStatStringValue = get3digitValue(value = hp),
-                baseStatValue = hp
-            ),
-            BaseStat(
-                baseStatName = "ATK",
-                baseStatStringValue = get3digitValue(value = attack),
-                baseStatValue = attack
-            ),
-            BaseStat(
-                baseStatName = "DEF",
-                baseStatStringValue = get3digitValue(value = defense),
-                baseStatValue = defense
-            ),
-            BaseStat(
-                baseStatName = "SPD",
-                baseStatStringValue = get3digitValue(value = speed),
-                baseStatValue = speed
-            ),
-        )
         Column(
             modifier = modifier
                 .padding(horizontal = 20.dp)
@@ -248,7 +271,14 @@ fun AboutCardContent(pokemon: Pokemon, modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                items(baseStats) { baseStat ->
+                items(
+                    getBaseStatList(
+                        hp = hp,
+                        attack = attack,
+                        defense = defense,
+                        speed = speed
+                    )
+                ) { baseStat ->
                     BaseStatElement(
                         baseStat = baseStat,
                         color = mainColor
@@ -291,7 +321,7 @@ fun HeightSection(pokemon: Pokemon, modifier: Modifier = Modifier) {
                 contentDescription = "height image"
             )
             Text(
-                text = "${(pokemon.height).toFloat() / 10} m",
+                text = getPokemonHeightInMeters(pokemon.height),
                 modifier = Modifier
                     .padding(bottom = 10.dp),
             )
@@ -337,23 +367,13 @@ fun WeightSection(pokemon: Pokemon, modifier: Modifier = Modifier) {
 
 @Composable
 fun AbilitiesSection(pokemon: Pokemon, modifier: Modifier = Modifier) {
-    var abilityNames = ""
-
-    with(pokemon) {
-        for (i in abilities.indices) {
-            abilityNames += abilities[i]
-                .replaceFirstChar { it.uppercase() }
-            if (i != abilities.size - 1) abilityNames += "\n"
-        }
-    }
-
     Column(
         modifier = modifier.fillMaxHeight(),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = abilityNames,
+            text = getPokemonAbilitiesString(pokemon.abilities),
             modifier = Modifier
                 .padding(bottom = 10.dp)
         )
@@ -387,7 +407,7 @@ fun BaseStatElement(baseStat: BaseStat, color: Color, modifier: Modifier = Modif
         VerticalDivider()
         Text(text = baseStat.baseStatStringValue)
         LinearProgressIndicator(
-            progress = { baseStat.baseStatValue.toFloat() / 233f },
+            progress = getBaseStatProgress(baseStat = baseStat),
             modifier = Modifier.widthIn(max = 210.dp),
             color = color,
             trackColor = color.copy(alpha = 0.24f),
@@ -415,3 +435,39 @@ fun TypeElement(text: String, color: Color, modifier: Modifier = Modifier) {
         )
     }
 }
+
+
+private class PokemonInfoUiStateProvider :
+    CollectionPreviewParameterProvider<PokemonInfoScreenState>(
+        buildList {
+            add(
+                PokemonInfoScreenState(
+                    loadingState = LoadingState.Loaded(
+                        Pokemon(
+                            id = 1,
+                            name = "Bulbasaur",
+                            smallSprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+                            bigSprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png",
+                            types = listOf("grass", "poison"),
+                            height = 7,
+                            weight = 69,
+                            abilities = listOf("overgrow", "chlorophyll"),
+                            hp = 45,
+                            attack = 49,
+                            defense = 49,
+                            speed = 45,
+                            flavor = "There is a plant seed on its back right from the day this POKéMON is born. The seed slowly grows larger."
+                        )
+                    )
+                )
+            )
+
+            add(
+                PokemonInfoScreenState(loadingState = LoadingState.Loading)
+            )
+
+            add(
+                PokemonInfoScreenState(loadingState = LoadingState.Error(Throwable()))
+            )
+        }
+    )
