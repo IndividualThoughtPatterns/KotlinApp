@@ -19,7 +19,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,13 +31,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.kotlinapp.data.LoadingState
 import com.example.kotlinapp.data.PokemonItem
-import com.example.kotlinapp.ui.LocalNavController
-import com.example.kotlinapp.ui.NavRoutes
 import com.example.kotlinapp.ui.PokemonLoadingScreen
 
 @Composable
@@ -72,6 +68,13 @@ fun PokemonListContent(
         items(items = pokemonItemList.value) { pokemonItem ->
             PokemonElement(
                 pokemonItem = pokemonItem,
+                onPokemonItemClick = {
+                    onEvent(
+                        PokemonListEvent.OnPokemonItemClick(
+                            name = pokemonItem.name
+                        )
+                    )
+                },
                 onToggleFavoriteClick = { pokemonItem: PokemonItem ->
                     onEvent(PokemonListEvent.OnToggleFavoriteClick(pokemonItem))
                 },
@@ -87,176 +90,30 @@ fun PokemonListContent(
     }
 }
 
-//@Preview
-//@Composable
-//fun PokemonListContentPreview() {
-//    val scrollState = rememberScrollState()
-//    val navController = rememberNavController()
-//    CompositionLocalProvider( // если попытаться навигироваться, будет краш
-//        LocalNavController provides navController,
-//    ) {
-//        Column(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .verticalScroll(scrollState)
-//        ) {
-//            PokemonListContent(
-//                state = PokemonListScreenState(loadingState = LoadingState.Loading),
-//                onEvent = {}
-//            )
-//            PokemonListContent(
-//                state = PokemonListScreenState(
-//                    loadingState = LoadingState.Loaded(
-//                        value = listOf(
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
-//                                name = "bulbasaur",
-//                                isFavorite = true
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/2.png",
-//                                name = "ivysaur",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png",
-//                                name = "venusaur",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png",
-//                                name = "charmander",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/5.png",
-//                                name = "charmeleon",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png",
-//                                name = "charizard",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png",
-//                                name = "squirtle",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/8.png",
-//                                name = "wartortle",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png",
-//                                name = "blastoise",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10.png",
-//                                name = "caterpie",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/11.png",
-//                                name = "metapod",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/12.png",
-//                                name = "butterfree",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/13.png",
-//                                name = "weedle",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/14.png",
-//                                name = "kakuna",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/15.png",
-//                                name = "beedrill",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/16.png",
-//                                name = "pidgey",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/17.png",
-//                                name = "pidgeotto",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/18.png",
-//                                name = "pidgeot",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/19.png",
-//                                name = "rattata",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/20.png",
-//                                name = "raticate",
-//                                isFavorite = false
-//                            )
-//                        )
-//                    ),
-//                ),
-//                onEvent = {}
-//            )
-//            PokemonListContent(
-//                state = PokemonListScreenState(loadingState = LoadingState.Loaded(value = emptyList())),
-//                onEvent = {}
-//            )
-//            PokemonListContent(
-//                state = PokemonListScreenState(
-//                    loadingState = LoadingState.Error(throwable = Throwable())
-//                ),
-//                onEvent = {}
-//            )
-//        }
-//    }
-//}
-
 @Preview
 @Composable
 fun PokemonListContentPreview(
     @PreviewParameter(PokemonListUiStateProvider::class) state: PokemonListScreenState
 ) {
-    val navController = rememberNavController()
-    CompositionLocalProvider(
-        // если попытаться навигироваться, будет краш
-        LocalNavController provides navController,
-    ) {
-        PokemonListContent(
-            state = state,
-            onEvent = {}
-        )
-    }
+    PokemonListContent(
+        state = state,
+        onEvent = {}
+    )
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun PokemonElement(
     pokemonItem: PokemonItem,
+    onPokemonItemClick: () -> Unit,
     onToggleFavoriteClick: (pokemonItem: PokemonItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val navController = LocalNavController.current
     Card(
         modifier = modifier
             .fillMaxWidth()
             .clickable {
-                navController.navigate(NavRoutes.PokemonInfo(pokemonItem.name))
+                onPokemonItemClick()
             },
         elevation = CardDefaults.cardElevation(8.dp)
     ) {

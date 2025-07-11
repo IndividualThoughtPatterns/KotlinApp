@@ -68,44 +68,6 @@ fun PokemonInfoContent(
     }
 }
 
-//@Preview(showSystemUi = true)
-//@Composable
-//fun PokemonInfoContentPreview() {
-//    val scrollState = rememberScrollState()
-//    Column(modifier = Modifier.fillMaxSize().verticalScroll(scrollState)) {
-//        PokemonInfoContent(
-//            state = PokemonInfoScreenState(loadingState = LoadingState.Loading),
-//            onEvent = {}
-//        )
-//        PokemonInfoContent(
-//            state = PokemonInfoScreenState(loadingState = LoadingState.Error(Throwable())),
-//            onEvent = {}
-//        )
-//        PokemonInfoContent(
-//            state = PokemonInfoScreenState(
-//                loadingState = LoadingState.Loaded(
-//                    Pokemon(
-//                        id = 1,
-//                        name = "Bulbasaur",
-//                        smallSprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
-//                        bigSprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png",
-//                        types = listOf("grass", "poison"),
-//                        height = 7,
-//                        weight = 69,
-//                        abilities = listOf("overgrow", "chlorophyll"),
-//                        hp = 45,
-//                        attack = 49,
-//                        defense = 49,
-//                        speed = 45,
-//                        flavor = "There is a plant seed on its back right from the day this POKéMON is born. The seed slowly grows larger."
-//                )
-//                )
-//            ),
-//            onEvent = {}
-//        )
-//    }
-//}
-
 @Preview
 @Composable
 fun PokemonInfoContentPreview(

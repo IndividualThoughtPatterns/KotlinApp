@@ -47,6 +47,10 @@ class PokemonListViewModel : ViewModel() {
             PokemonListEvent.OnScrolledBottom -> {
                 loadNextPage()
             }
+
+            is PokemonListEvent.OnPokemonItemClick -> {
+                commandFlow emit PokemonListScreenUiCommand.NavigateToPokemonInfo(name = event.name)
+            }
         }
     }
 
