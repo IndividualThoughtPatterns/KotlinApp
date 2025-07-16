@@ -112,4 +112,10 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     implementation("androidx.constraintlayout:constraintlayout-compose:1.1.1")
+
+    val paging_version = "3.3.6"
+
+    implementation("androidx.paging:paging-runtime:$paging_version")
+    implementation("androidx.paging:paging-compose:3.4.0-alpha01")
+
 }

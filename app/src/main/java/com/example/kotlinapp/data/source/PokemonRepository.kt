@@ -31,28 +31,30 @@ class PokemonRepository {
 
     private val networkApiInterface = retrofit.create(NetworkApiInterface::class.java)
 
-    fun getPokemonList(
+    suspend fun getPokemonList(
         limit: Int,
         offset: Int
     ): List<PokemonItemWithId> {
-        val getPokemonNamesResponse = networkApiInterface
-            .getPokemonNames(
-                limit = limit,
-                offset
-            )
-            .execute()
+        return withContext(Dispatchers.IO) {
+            val getPokemonNamesResponse = networkApiInterface
+                .getPokemonNames(
+                    limit = limit,
+                    offset
+                )
+                .execute()
 
-        val pokemonList = getPokemonNamesResponse.body()!!.names.map { response ->
-            val pokemonDescription =
-                networkApiInterface.getPokemon(response.name).execute().body()!!
+            val pokemonList = getPokemonNamesResponse.body()!!.names.map { response ->
+                val pokemonDescription =
+                    networkApiInterface.getPokemon(response.name).execute().body()!!
 
-            PokemonItemWithId(
-                id = pokemonDescription.id,
-                name = response.name,
-                smallSprite = pokemonDescription.sprites.frontDefault,
-            )
+                PokemonItemWithId(
+                    id = pokemonDescription.id,
+                    name = response.name,
+                    smallSprite = pokemonDescription.sprites.frontDefault,
+                )
+            }
+            pokemonList
         }
-        return pokemonList
     }
 
     suspend fun getPokemonByName(name: String): Pokemon {

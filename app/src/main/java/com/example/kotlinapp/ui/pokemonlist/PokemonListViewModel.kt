@@ -2,41 +2,47 @@ package com.example.kotlinapp.ui.pokemonlist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.map
 import com.example.kotlinapp.App
 import com.example.kotlinapp.data.FavoritePokemon
-import com.example.kotlinapp.data.LoadingState
 import com.example.kotlinapp.data.PokemonItem
-import com.example.kotlinapp.data.source.PokemonRepository
+import com.example.kotlinapp.data.source.PokemonPagingSource
 import com.example.kotlinapp.ui.CommandFlow
 import com.example.kotlinapp.ui.emit
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class PokemonListViewModel : ViewModel() {
     private var favoritePokemonDao = App.instance.db.favoritePokemonDao()
     private val pokemonRepository = App.instance.pokemonRepository
-    private val limit = 20
-    private var offsetFactor = 0
-    private var offset = limit * offsetFactor
 
-    private val pokemonItemWithIdListFlow =
-        MutableStateFlow<List<PokemonRepository.PokemonItemWithId>>(
-            emptyList()
-        )
+    private var _pokemonListFlow: Flow<PagingData<PokemonItem>> = Pager(
+        config = PagingConfig(pageSize = 20, prefetchDistance = 1, initialLoadSize = 20)
+    ) {
+        PokemonPagingSource(pokemonRepository = pokemonRepository)
+    }
+        .flow
+        .cachedIn(viewModelScope)
+        .combine(favoritePokemonDao.getAllAsFlow()) { pagingData, favorites ->
+            pagingData.map { pokemonItemWithId ->
+                PokemonItem(
+                    sprite = pokemonItemWithId.smallSprite,
+                    name = pokemonItemWithId.name,
+                    isFavorite = favorites
+                        .firstOrNull { it.name == pokemonItemWithId.name } != null
+                )
+            }
+        }
 
-    private val _state =
-        MutableStateFlow<PokemonListScreenState>(PokemonListScreenState(LoadingState.Loading))
-    val state = _state.asStateFlow()
+    val pokemonListFlow: Flow<PagingData<PokemonItem>> = _pokemonListFlow
 
     val commandFlow = CommandFlow<PokemonListScreenUiCommand>(viewModelScope)
-
-    init {
-        loadNextPage()
-    }
 
     fun onEvent(event: PokemonListEvent) {
         when (event) {
@@ -44,47 +50,13 @@ class PokemonListViewModel : ViewModel() {
                 toggleFavorite(event.pokemonItem)
             }
 
-            PokemonListEvent.OnScrolledBottom -> {
-                loadNextPage()
-            }
-
             is PokemonListEvent.OnPokemonItemClick -> {
                 commandFlow emit PokemonListScreenUiCommand.NavigateToPokemonInfo(name = event.name)
             }
-        }
-    }
 
-    fun loadNextPage() {
-        _state.update { PokemonListScreenState(LoadingState.Loading) }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val prevList = pokemonItemWithIdListFlow.value
-                val newList =
-                    prevList + pokemonRepository.getPokemonList(limit = limit, offset = offset)
-                pokemonItemWithIdListFlow.value = newList
-
-                combine(
-                    pokemonItemWithIdListFlow,
-                    favoritePokemonDao.getAllAsFlow(),
-                ) { pokemonList, favorites ->
-                    PokemonListScreenState(
-                        loadingState = LoadingState.Loaded(
-                            value = buildPokemonItems(
-                                pokemonList,
-                                favorites
-                            )
-                        )
-                    )
-                }.collect {
-                    _state.value = it
-                    offsetFactor++
-                    offset = limit * offsetFactor
-                }
-            } catch (exception: Exception) {
-                _state.update { PokemonListScreenState(LoadingState.Error(exception)) } // разобраться зачем он тогда теперь
+            is PokemonListEvent.OnError -> {
                 commandFlow emit PokemonListScreenUiCommand.ShowErrorMessage(
-                    message = exception.message.toString()
+                    message = ""
                 )
             }
         }
@@ -98,16 +70,5 @@ class PokemonListViewModel : ViewModel() {
                 favoritePokemonDao.insert(FavoritePokemon(pokemonItem.name))
             }
         }
-    }
-
-    private fun buildPokemonItems(
-        pokemonList: List<PokemonRepository.PokemonItemWithId>,
-        favorites: List<FavoritePokemon>
-    ) = pokemonList.map { pokemonItemWithId ->
-        PokemonItem(
-            sprite = pokemonItemWithId.smallSprite,
-            name = pokemonItemWithId.name,
-            isFavorite = favorites.firstOrNull { it.name == pokemonItemWithId.name } != null
-        )
     }
 }

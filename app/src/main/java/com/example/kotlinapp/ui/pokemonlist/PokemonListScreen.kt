@@ -7,12 +7,11 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.kotlinapp.ui.LocalNavController
 import com.example.kotlinapp.ui.NavRoutes
 import kotlinx.coroutines.launch
@@ -20,7 +19,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun PokemonListScreen() {
     val pokemonListViewModel = viewModel { PokemonListViewModel() }
-    val state by pokemonListViewModel.state.collectAsState()
+    val state = pokemonListViewModel.pokemonListFlow.collectAsLazyPagingItems()
     val snackbarHostState = remember { SnackbarHostState() }
     val navController = LocalNavController.current
 
@@ -34,6 +33,7 @@ fun PokemonListScreen() {
                             duration = SnackbarDuration.Short
                         )
                     }
+
                     is PokemonListScreenUiCommand.NavigateToPokemonInfo -> {
                         navController.navigate(NavRoutes.PokemonInfo(name = it.name))
                     }
