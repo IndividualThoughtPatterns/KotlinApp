@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.kotlinapp.ui.pokemoninfo.PokemonInfoScreen
 import com.example.kotlinapp.ui.pokemonlist.PokemonListScreen
+import com.example.kotlinapp.ui.pokemonsettings.PokemonSettingsScreen
 import kotlinx.serialization.Serializable
 
 val LocalNavController = staticCompositionLocalOf<NavController> {
@@ -20,6 +21,7 @@ val LocalNavController = staticCompositionLocalOf<NavController> {
 @Composable
 fun Main() {
     val navController = rememberNavController()
+
     CompositionLocalProvider(
         LocalNavController provides navController,
     ) {
@@ -36,6 +38,10 @@ fun Main() {
                     val route: NavRoutes.PokemonInfo = it.toRoute()
                     PokemonInfoScreen(name = route.name)
                 }
+
+                composable<NavRoutes.PokemonSettings> {
+                    PokemonSettingsScreen()
+                }
             }
         }
     }
@@ -47,4 +53,7 @@ sealed interface NavRoutes {
 
     @Serializable
     data class PokemonInfo(val name: String) : NavRoutes
+
+    @Serializable
+    data object PokemonSettings : NavRoutes
 }

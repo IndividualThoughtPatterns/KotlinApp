@@ -10,7 +10,7 @@ data class PokemonItemWithIdEntity(
     val id: Int = 0,
     @ColumnInfo(name = "name")
     val name: String,
-    @ColumnInfo(name = "small_sprite") // надо будет разобраться с BLOB и сжатием
+    @ColumnInfo(name = "small_sprite") // надо будет разобраться с BLOB
     val sprite: String,
     @ColumnInfo(name = "timestamp")
     val timestamp: Long?

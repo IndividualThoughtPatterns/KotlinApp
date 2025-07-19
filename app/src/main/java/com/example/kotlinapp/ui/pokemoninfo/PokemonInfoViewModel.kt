@@ -16,8 +16,9 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 
 class PokemonInfoViewModel(val pokemonInfoName: String) : ViewModel() {
-    private val cachingEnabled =
-        true // вынести остюда в app, либо в composition local, дальше будет переключатель настроек
+    private val sharedPreferencesRepository = App.instance.sharedPreferencesRepository
+    private val cachingModeFlow = sharedPreferencesRepository.cachingModeFlow
+
     private val pokemonDao = App.instance.db.pokemonDao()
 
     private val _state = MutableStateFlow<PokemonInfoScreenState>(
@@ -41,10 +42,12 @@ class PokemonInfoViewModel(val pokemonInfoName: String) : ViewModel() {
         _state.update { PokemonInfoScreenState(loadingState = Loading) }
 
         viewModelScope.launch(context = Dispatchers.IO) {
-            if (cachingEnabled) {
-                loadFromCache()
-            } else {
-                loadFromNetworkOnly()
+            cachingModeFlow.collect { cachingEnabled ->
+                if (cachingEnabled) {
+                    loadFromCache()
+                } else {
+                    loadFromNetworkOnly()
+                }
             }
         }
     }
@@ -76,14 +79,19 @@ class PokemonInfoViewModel(val pokemonInfoName: String) : ViewModel() {
     }
 
     suspend fun loadFromNetworkOnly() {
-        _state.update {
-            PokemonInfoScreenState(
-                loadingState = Loaded(
-                    value = App.instance.pokemonRepository.getPokemonByName(
-                        pokemonInfoName
+        try {
+            _state.update {
+                PokemonInfoScreenState(
+                    loadingState = Loaded(
+                        value = App.instance.pokemonRepository.getPokemonByName(
+                            pokemonInfoName
+                        )
                     )
                 )
-            )
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            _state.update { PokemonInfoScreenState(loadingState = LoadingState.Error(e)) }
         }
     }
 }

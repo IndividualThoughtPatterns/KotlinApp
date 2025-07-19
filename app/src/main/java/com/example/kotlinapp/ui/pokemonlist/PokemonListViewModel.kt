@@ -11,6 +11,7 @@ import androidx.paging.map
 import com.example.kotlinapp.App
 import com.example.kotlinapp.data.FavoritePokemonEntity
 import com.example.kotlinapp.data.PokemonItem
+import com.example.kotlinapp.data.source.PokemonPagingSource
 import com.example.kotlinapp.data.source.PokemonRemoteMediator
 import com.example.kotlinapp.ui.CommandFlow
 import com.example.kotlinapp.ui.emit
@@ -19,55 +20,72 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalPagingApi::class)
 class PokemonListViewModel : ViewModel() {
     private val favoritePokemonDao = App.instance.db.favoritePokemonDao()
     private val pokemonItemWithIdEntityDao = App.instance.db.pokemonItemWithIdDao()
     private val pokemonRepository = App.instance.pokemonRepository
 
-    @OptIn(ExperimentalPagingApi::class)
-    private val _pokemonListFlow = Pager(
-        config = PagingConfig(
-            pageSize = 20,
-            prefetchDistance = 1,
-            initialLoadSize = 20,
-            enablePlaceholders = false
-        ),
-        remoteMediator = PokemonRemoteMediator(pokemonRepository, App.instance.db)
-    ) {
-        pokemonItemWithIdEntityDao.pagingSource()
-    }
-        .flow
-        .cachedIn(viewModelScope)
-        .combine(favoritePokemonDao.getAllAsFlow()) { pagingData, favorites ->
-            pagingData.map { pokemonItemWithId ->
-                PokemonItem(
-                    sprite = pokemonItemWithId.sprite,
-                    name = pokemonItemWithId.name,
-                    isFavorite = favorites
-                        .firstOrNull { it.name == pokemonItemWithId.name } != null,
-                )
+    private val sharedPreferencesRepository = App.instance.sharedPreferencesRepository
+    private val cachingModeFlow = sharedPreferencesRepository.cachingModeFlow
+
+    private lateinit var _pokemonListFlow: Flow<PagingData<PokemonItem>>
+    lateinit var pokemonListFlow: Flow<PagingData<PokemonItem>>
+
+    init {
+        viewModelScope.launch {
+            cachingModeFlow.collect { cachingEnabled ->
+                if (cachingEnabled) {
+                    _pokemonListFlow = Pager(
+                        config = PagingConfig(
+                            pageSize = 20,
+                            prefetchDistance = 1,
+                            initialLoadSize = 20,
+                            enablePlaceholders = false
+                        ),
+                        remoteMediator = PokemonRemoteMediator(pokemonRepository, App.instance.db)
+                    ) {
+                        pokemonItemWithIdEntityDao.pagingSource()
+                    }
+                        .flow
+                        .cachedIn(viewModelScope)
+                        .combine(favoritePokemonDao.getAllAsFlow()) { pagingData, favorites ->
+                            pagingData.map { pokemonItemWithId ->
+                                PokemonItem(
+                                    sprite = pokemonItemWithId.sprite,
+                                    name = pokemonItemWithId.name,
+                                    isFavorite = favorites
+                                        .firstOrNull { it.name == pokemonItemWithId.name } != null,
+                                )
+                            }
+                        }
+                } else {
+                    _pokemonListFlow = Pager(
+                        config = PagingConfig(
+                            pageSize = 20,
+                            prefetchDistance = 1,
+                            initialLoadSize = 20
+                        )
+                    ) {
+                        PokemonPagingSource(pokemonRepository = pokemonRepository)
+                    }
+                        .flow
+                        .cachedIn(viewModelScope)
+                        .combine(favoritePokemonDao.getAllAsFlow()) { pagingData, favorites ->
+                            pagingData.map { pokemonItemWithId ->
+                                PokemonItem(
+                                    sprite = pokemonItemWithId.smallSprite,
+                                    name = pokemonItemWithId.name,
+                                    isFavorite = favorites
+                                        .firstOrNull { it.name == pokemonItemWithId.name } != null
+                                )
+                            }
+                        }
+                }
+                pokemonListFlow = _pokemonListFlow
             }
         }
-
-//    private val _pokemonListFlow: Flow<PagingData<PokemonItem>> = Pager(
-//        config = PagingConfig(pageSize = 20, prefetchDistance = 1, initialLoadSize = 20)
-//    ) {
-//        PokemonPagingSource(pokemonRepository = pokemonRepository)
-//    }
-//        .flow
-//        .cachedIn(viewModelScope)
-//        .combine(favoritePokemonDao.getAllAsFlow()) { pagingData, favorites ->
-//            pagingData.map { pokemonItemWithId ->
-//                PokemonItem(
-//                    sprite = pokemonItemWithId.smallSprite,
-//                    name = pokemonItemWithId.name,
-//                    isFavorite = favorites
-//                        .firstOrNull { it.name == pokemonItemWithId.name } != null
-//                )
-//            }
-//        }
-
-    val pokemonListFlow: Flow<PagingData<PokemonItem>> = _pokemonListFlow
+    }
 
     val commandFlow = CommandFlow<PokemonListScreenUiCommand>(viewModelScope)
 
@@ -85,6 +103,10 @@ class PokemonListViewModel : ViewModel() {
                 commandFlow emit PokemonListScreenUiCommand.ShowErrorMessage(
                     message = ""
                 )
+            }
+
+            is PokemonListEvent.OnSettingsClick -> {
+                commandFlow emit PokemonListScreenUiCommand.NavigateToPokemonSettings
             }
         }
     }

@@ -6,4 +6,5 @@ interface PokemonListEvent {
     data class OnToggleFavoriteClick(val pokemonItem: PokemonItem) : PokemonListEvent
     data object OnError : PokemonListEvent
     data class OnPokemonItemClick(val name: String) : PokemonListEvent
+    data object OnSettingsClick : PokemonListEvent
 }
