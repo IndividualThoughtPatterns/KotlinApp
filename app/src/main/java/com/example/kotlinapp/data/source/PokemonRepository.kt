@@ -1,5 +1,7 @@
 package com.example.kotlinapp.data.source
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import com.example.kotlinapp.data.Pokemon
 import com.example.kotlinapp.data.source.remote.NetworkApiInterface
 import kotlinx.coroutines.Dispatchers
@@ -56,6 +58,17 @@ class PokemonRepository {
             pokemonList
         }
     }
+
+    fun getPokemonListPagingFlow() = Pager(
+        config = PagingConfig(
+            pageSize = 20,
+            prefetchDistance = 1,
+            initialLoadSize = 20
+        ), // чтоб работало как раньше
+        pagingSourceFactory = {
+            PokemonPagingSource(dataSource = this)
+        }
+    ).flow
 
     suspend fun getPokemonByName(name: String): Pokemon {
         val pokemonDescription =

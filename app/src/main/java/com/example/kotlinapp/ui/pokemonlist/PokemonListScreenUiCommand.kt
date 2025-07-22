@@ -8,6 +8,4 @@ sealed interface PokemonListScreenUiCommand {
     data class NavigateToPokemonInfo(
         val name: String
     ) : PokemonListScreenUiCommand
-
-    data object NavigateToPokemonSettings : PokemonListScreenUiCommand
 }

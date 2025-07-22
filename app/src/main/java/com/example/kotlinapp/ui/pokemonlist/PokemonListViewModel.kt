@@ -2,17 +2,12 @@ package com.example.kotlinapp.ui.pokemonlist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.ExperimentalPagingApi
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.example.kotlinapp.App
-import com.example.kotlinapp.data.FavoritePokemonEntity
+import com.example.kotlinapp.data.FavoritePokemon
 import com.example.kotlinapp.data.PokemonItem
-import com.example.kotlinapp.data.source.PokemonPagingSource
-import com.example.kotlinapp.data.source.PokemonRemoteMediator
 import com.example.kotlinapp.ui.CommandFlow
 import com.example.kotlinapp.ui.emit
 import kotlinx.coroutines.Dispatchers
@@ -20,72 +15,24 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalPagingApi::class)
 class PokemonListViewModel : ViewModel() {
-    private val favoritePokemonDao = App.instance.db.favoritePokemonDao()
-    private val pokemonItemWithIdEntityDao = App.instance.db.pokemonItemWithIdDao()
+    private var favoritePokemonDao = App.instance.db.favoritePokemonDao()
     private val pokemonRepository = App.instance.pokemonRepository
 
-    private val sharedPreferencesRepository = App.instance.sharedPreferencesRepository
-    private val cachingModeFlow = sharedPreferencesRepository.cachingModeFlow
-
-    private lateinit var _pokemonListFlow: Flow<PagingData<PokemonItem>>
-    lateinit var pokemonListFlow: Flow<PagingData<PokemonItem>>
-
-    init {
-        viewModelScope.launch {
-            cachingModeFlow.collect { cachingEnabled ->
-                if (cachingEnabled) {
-                    _pokemonListFlow = Pager(
-                        config = PagingConfig(
-                            pageSize = 20,
-                            prefetchDistance = 1,
-                            initialLoadSize = 20,
-                            enablePlaceholders = false
-                        ),
-                        remoteMediator = PokemonRemoteMediator(pokemonRepository, App.instance.db)
-                    ) {
-                        pokemonItemWithIdEntityDao.pagingSource()
-                    }
-                        .flow
-                        .cachedIn(viewModelScope)
-                        .combine(favoritePokemonDao.getAllAsFlow()) { pagingData, favorites ->
-                            pagingData.map { pokemonItemWithId ->
-                                PokemonItem(
-                                    sprite = pokemonItemWithId.sprite,
-                                    name = pokemonItemWithId.name,
-                                    isFavorite = favorites
-                                        .firstOrNull { it.name == pokemonItemWithId.name } != null,
-                                )
-                            }
-                        }
-                } else {
-                    _pokemonListFlow = Pager(
-                        config = PagingConfig(
-                            pageSize = 20,
-                            prefetchDistance = 1,
-                            initialLoadSize = 20
-                        )
-                    ) {
-                        PokemonPagingSource(pokemonRepository = pokemonRepository)
-                    }
-                        .flow
-                        .cachedIn(viewModelScope)
-                        .combine(favoritePokemonDao.getAllAsFlow()) { pagingData, favorites ->
-                            pagingData.map { pokemonItemWithId ->
-                                PokemonItem(
-                                    sprite = pokemonItemWithId.smallSprite,
-                                    name = pokemonItemWithId.name,
-                                    isFavorite = favorites
-                                        .firstOrNull { it.name == pokemonItemWithId.name } != null
-                                )
-                            }
-                        }
-                }
-                pokemonListFlow = _pokemonListFlow
+    private var _pokemonItemListFlow = pokemonRepository.getPokemonListPagingFlow()
+        .cachedIn(viewModelScope)
+        .combine(favoritePokemonDao.getAllAsFlow()) { pagingData, favorites ->
+            pagingData.map { pokemonItemWithId ->
+                PokemonItem(
+                    sprite = pokemonItemWithId.smallSprite,
+                    name = pokemonItemWithId.name,
+                    isFavorite = favorites
+                        .firstOrNull { it.name == pokemonItemWithId.name } != null
+                )
             }
         }
-    }
+
+    val pokemonItemListFlow: Flow<PagingData<PokemonItem>> = _pokemonItemListFlow
 
     val commandFlow = CommandFlow<PokemonListScreenUiCommand>(viewModelScope)
 
@@ -104,10 +51,6 @@ class PokemonListViewModel : ViewModel() {
                     message = ""
                 )
             }
-
-            is PokemonListEvent.OnSettingsClick -> {
-                commandFlow emit PokemonListScreenUiCommand.NavigateToPokemonSettings
-            }
         }
     }
 
@@ -116,7 +59,7 @@ class PokemonListViewModel : ViewModel() {
             if (pokemonItem.isFavorite) {
                 favoritePokemonDao.deleteByName(pokemonItem.name)
             } else {
-                favoritePokemonDao.insert(FavoritePokemonEntity(pokemonItem.name))
+                favoritePokemonDao.insert(FavoritePokemon(pokemonItem.name))
             }
         }
     }

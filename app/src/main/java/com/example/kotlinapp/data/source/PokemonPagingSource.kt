@@ -4,7 +4,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 
 class PokemonPagingSource(
-    private val pokemonRepository: PokemonRepository
+    private val dataSource: PokemonRepository
 ) : PagingSource<Int, PokemonRepository.PokemonItemWithId>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, PokemonRepository.PokemonItemWithId> {
         return try {
@@ -13,7 +13,7 @@ class PokemonPagingSource(
             val offset = page * limit
 
             val pokemonItemWithIdsList =
-                pokemonRepository.getPokemonList(limit = limit, offset = offset)
+                dataSource.getPokemonList(limit, offset)
             LoadResult.Page(
                 data = pokemonItemWithIdsList,
                 prevKey = null,

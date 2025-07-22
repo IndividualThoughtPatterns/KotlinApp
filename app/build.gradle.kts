@@ -73,12 +73,8 @@ dependencies {
 
     implementation(libs.androidx.fragment.ktx)
 
-    val room_version = "2.7.2"
-
-    implementation("androidx.room:room-runtime:$room_version")
-    ksp("androidx.room:room-compiler:$room_version")
-    implementation("androidx.room:room-ktx:$room_version")
-    implementation("androidx.room:room-paging:$room_version")
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler.v250)
 
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
 

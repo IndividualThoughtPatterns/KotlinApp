@@ -26,7 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
-import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.kotlinapp.data.PokemonItem
@@ -34,10 +34,11 @@ import com.example.kotlinapp.ui.PokemonLoadingScreen
 
 @Composable
 fun PokemonListContent(
-    state: LazyPagingItems<PokemonItem>, //
+    state: PokemonListScreenState,
     onEvent: (PokemonListEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val pokemonListState = state.pokemonItemListPaging.collectAsLazyPagingItems()
     val lazyColumnState = rememberLazyListState()
 
     LazyColumn(
@@ -46,8 +47,8 @@ fun PokemonListContent(
             .fillMaxWidth()
             .height(LocalConfiguration.current.screenHeightDp.dp)
     ) {
-        items(count = state.itemCount) { index ->
-            val item = state[index]!!
+        items(count = pokemonListState.itemCount) { index ->
+            val item = pokemonListState[index]!!
             PokemonElement(
                 pokemonItem = item,
                 onPokemonItemClick = {
@@ -63,7 +64,7 @@ fun PokemonListContent(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             )
         }
-        state.apply {
+        pokemonListState.apply {
             if (loadState.refresh is LoadState.Error || loadState.append is LoadState.Error) {
                 item {
                     ErrorItem(onClickRetry = { retry() })
@@ -71,7 +72,7 @@ fun PokemonListContent(
             }
         }
     }
-    state.apply {
+    pokemonListState.apply {
         if (loadState.refresh is LoadState.Loading || loadState.append is LoadState.Loading) {
             PokemonLoadingScreen(modifier = Modifier)
         }
@@ -140,7 +141,7 @@ fun PokemonElement(
                     .padding(8.dp)
             )
             Text(
-                text = pokemonItem.name.replaceFirstChar { it.uppercase() },
+                pokemonItem.name.replaceFirstChar { it.uppercase() },
                 modifier = Modifier
                     .weight(6f),
                 style = MaterialTheme.typography.headlineSmall,
@@ -159,130 +160,3 @@ fun PokemonElement(
         }
     }
 }
-//
-//private class PokemonListUiStateProvider :
-//    CollectionPreviewParameterProvider<PokemonListScreenState>(
-//        buildList {
-//            add(
-//                PokemonListScreenState(loadingState = LoadingState.Loading)
-//            )
-//            add(
-//                PokemonListScreenState(
-//                    loadingState = LoadingState.Loaded(
-//                        value = listOf(
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
-//                                name = "bulbasaur",
-//                                isFavorite = true
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/2.png",
-//                                name = "ivysaur",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png",
-//                                name = "venusaur",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png",
-//                                name = "charmander",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/5.png",
-//                                name = "charmeleon",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png",
-//                                name = "charizard",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png",
-//                                name = "squirtle",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/8.png",
-//                                name = "wartortle",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png",
-//                                name = "blastoise",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10.png",
-//                                name = "caterpie",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/11.png",
-//                                name = "metapod",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/12.png",
-//                                name = "butterfree",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/13.png",
-//                                name = "weedle",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/14.png",
-//                                name = "kakuna",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/15.png",
-//                                name = "beedrill",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/16.png",
-//                                name = "pidgey",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/17.png",
-//                                name = "pidgeotto",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/18.png",
-//                                name = "pidgeot",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/19.png",
-//                                name = "rattata",
-//                                isFavorite = false
-//                            ),
-//                            PokemonItem(
-//                                sprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/20.png",
-//                                name = "raticate",
-//                                isFavorite = false
-//                            )
-//                        )
-//                    ),
-//                )
-//            )
-//
-//            add(
-//                PokemonListScreenState(loadingState = LoadingState.Loaded(value = emptyList()))
-//            )
-//
-//            add(
-//                PokemonListScreenState(
-//                    loadingState = LoadingState.Error(throwable = Throwable())
-//                )
-//            )
-//        }
-//    )
