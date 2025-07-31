@@ -22,19 +22,17 @@ fun PokemonListScreen() {
     val navController = LocalNavController.current
 
     LaunchedEffect(key1 = Unit) {
-        pokemonListViewModel.viewModelScope.launch {
-            pokemonListViewModel.commandFlow.collectSafely {
-                when (it) {
-                    is PokemonListScreenUiCommand.ShowErrorMessage -> {
-                        snackbarHostState.showSnackbar(
-                            message = "Ошибка сети",
-                            duration = SnackbarDuration.Short
-                        )
-                    }
+        pokemonListViewModel.commandFlow.collectSafely {
+            when (it) {
+                is PokemonListScreenUiCommand.ShowErrorMessage -> {
+                    snackbarHostState.showSnackbar(
+                        message = "Ошибка сети",
+                        duration = SnackbarDuration.Short
+                    )
+                }
 
-                    is PokemonListScreenUiCommand.NavigateToPokemonInfo -> {
-                        navController.navigate(NavRoutes.PokemonInfo(name = it.name))
-                    }
+                is PokemonListScreenUiCommand.NavigateToPokemonInfo -> {
+                    navController.navigate(NavRoutes.PokemonInfo(name = it.name))
                 }
             }
         }
