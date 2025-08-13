@@ -5,9 +5,10 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.example.kotlinapp.App
 import com.example.kotlinapp.data.FavoritePokemon
 import com.example.kotlinapp.data.PokemonItem
+import com.example.kotlinapp.data.source.PokemonRepository
+import com.example.kotlinapp.data.source.local.FavoritePokemonDao
 import com.example.kotlinapp.ui.CommandFlow
 import com.example.kotlinapp.ui.emit
 import kotlinx.coroutines.Dispatchers
@@ -15,9 +16,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
-class PokemonListViewModel : ViewModel() {
-    private var favoritePokemonDao = App.instance.db.favoritePokemonDao()
-    private val pokemonRepository = App.instance.pokemonRepository
+class PokemonListViewModel(
+    pokemonRepository: PokemonRepository,
+    val favoritePokemonDao: FavoritePokemonDao
+) : ViewModel() {
 
     private var _pokemonItemListFlow = pokemonRepository.getPokemonListPagingFlow()
         .cachedIn(viewModelScope)

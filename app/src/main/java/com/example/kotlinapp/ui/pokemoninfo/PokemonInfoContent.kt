@@ -34,7 +34,6 @@ import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.font.FontWeight
@@ -85,7 +84,6 @@ private fun LoadedContent(pokemon: Pokemon, modifier: Modifier = Modifier) {
         Box(
             modifier = modifier
                 .fillMaxWidth()
-                .height(LocalConfiguration.current.screenHeightDp.dp)
                 .background(mainColor)
         ) {
             Image(
@@ -147,7 +145,6 @@ private fun ErrorContent(
         modifier = modifier
             .padding(10.dp)
             .fillMaxWidth()
-            .height(LocalConfiguration.current.screenHeightDp.dp)
     ) {
         Text(
             text = "Ошибка сети. Проверьте соединение с интернетом и попробуйте еще раз.",

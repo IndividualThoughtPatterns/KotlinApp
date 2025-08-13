@@ -118,4 +118,9 @@ dependencies {
     implementation("androidx.paging:paging-runtime:$paging_version")
     implementation("androidx.paging:paging-compose:3.4.0-alpha01")
 
+    val koin_version = "4.0.3"
+    implementation("io.insert-koin:koin-core:$koin_version")
+    implementation("io.insert-koin:koin-android:$koin_version")
+    implementation("io.insert-koin:koin-androidx-compose:$koin_version")
+    implementation("io.insert-koin:koin-androidx-compose-navigation:$koin_version")
 }

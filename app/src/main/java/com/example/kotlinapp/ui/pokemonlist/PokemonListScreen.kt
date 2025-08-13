@@ -9,15 +9,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kotlinapp.ui.LocalNavController
 import com.example.kotlinapp.ui.NavRoutes
-import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun PokemonListScreen() {
-    val pokemonListViewModel = viewModel { PokemonListViewModel() }
+    val pokemonListViewModel = koinViewModel<PokemonListViewModel>()
     val snackbarHostState = remember { SnackbarHostState() }
     val navController = LocalNavController.current
 
