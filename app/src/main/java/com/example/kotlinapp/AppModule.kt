@@ -15,17 +15,19 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 val appModule = module {
-    single<okhttp3.Interceptor> {
-        HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
-        }
-    }
     single {
-        val client = OkHttpClient.Builder()
-            .addInterceptor(interceptor = get())
+        OkHttpClient.Builder()
+            .addInterceptor(
+                interceptor = HttpLoggingInterceptor().apply {
+                    level = HttpLoggingInterceptor.Level.BODY
+                }
+            )
             .readTimeout(20, TimeUnit.SECONDS)
             .connectTimeout(20, TimeUnit.SECONDS)
             .build()
+    }
+    single {
+        val client: OkHttpClient = get()
 
         val baseURL = "https://pokeapi.co/api/v2/"
         val retrofit = Retrofit.Builder()
