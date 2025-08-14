@@ -1,59 +1,49 @@
 package com.example.kotlinapp.data.source
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import com.example.kotlinapp.data.Pokemon
 import com.example.kotlinapp.data.source.remote.NetworkApiInterface
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit
 
-class PokemonRepository {
-
-    private val interceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
-    }
-
-    private val client = OkHttpClient.Builder()
-        .addInterceptor(interceptor)
-        .readTimeout(20, TimeUnit.SECONDS)
-        .connectTimeout(20, TimeUnit.SECONDS)
-        .build()
-
-    private val baseURL = "https://pokeapi.co/api/v2/"
-    private val retrofit = Retrofit.Builder()
-        .baseUrl(baseURL)
-        .client(client)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-
-    private val networkApiInterface = retrofit.create(NetworkApiInterface::class.java)
-
-    fun getPokemonList(
+class PokemonRepository(val networkApiInterface: NetworkApiInterface) {
+    suspend fun getPokemonList(
         limit: Int,
         offset: Int
     ): List<PokemonItemWithId> {
-        val getPokemonNamesResponse = networkApiInterface
-            .getPokemonNames(
-                limit = limit,
-                offset
-            )
-            .execute()
+        return withContext(Dispatchers.IO) {
+            val getPokemonNamesResponse = networkApiInterface
+                .getPokemonNames(
+                    limit = limit,
+                    offset
+                )
+                .execute()
 
-        val pokemonList = getPokemonNamesResponse.body()!!.names.map { response ->
-            val pokemonDescription =
-                networkApiInterface.getPokemon(response.name).execute().body()!!
+            val pokemonList = getPokemonNamesResponse.body()!!.names.map { response ->
+                val pokemonDescription =
+                    networkApiInterface.getPokemon(response.name).execute().body()!!
 
-            PokemonItemWithId(
-                id = pokemonDescription.id,
-                name = response.name,
-                smallSprite = pokemonDescription.sprites.frontDefault,
-            )
+                PokemonItemWithId(
+                    id = pokemonDescription.id,
+                    name = response.name,
+                    smallSprite = pokemonDescription.sprites.frontDefault,
+                )
+            }
+            pokemonList
         }
-        return pokemonList
     }
+
+    fun getPokemonListPagingFlow() = Pager(
+        config = PagingConfig(
+            pageSize = 20,
+            prefetchDistance = 1,
+            initialLoadSize = 20
+        ), // чтоб работало как раньше
+        pagingSourceFactory = {
+            PokemonPagingSource(dataSource = this)
+        }
+    ).flow
 
     suspend fun getPokemonByName(name: String): Pokemon {
         val pokemonDescription =

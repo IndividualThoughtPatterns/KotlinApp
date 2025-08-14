@@ -1,6 +1,7 @@
 package com.example.kotlinapp.data
 
-data class LoadingState(
-    val isLoaded: Boolean,
-    val error: Throwable?
-)
+sealed interface LoadingState<out T> {
+    data class Loaded<T>(val value: T) : LoadingState<T>
+    data object Loading : LoadingState<Nothing>
+    data class Error(val throwable: Throwable) : LoadingState<Nothing>
+}

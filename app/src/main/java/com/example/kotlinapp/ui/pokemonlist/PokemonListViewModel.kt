@@ -2,70 +2,56 @@ package com.example.kotlinapp.ui.pokemonlist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.kotlinapp.App
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.map
 import com.example.kotlinapp.data.FavoritePokemon
-import com.example.kotlinapp.data.LoadingState
 import com.example.kotlinapp.data.PokemonItem
 import com.example.kotlinapp.data.source.PokemonRepository
+import com.example.kotlinapp.data.source.local.FavoritePokemonDao
+import com.example.kotlinapp.ui.CommandFlow
+import com.example.kotlinapp.ui.emit
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.IOException
 
-class PokemonListViewModel : ViewModel() {
-    private var favoritePokemonDao = App.instance.db.favoritePokemonDao()
-    private val pokemonRepository = App.instance.pokemonRepository
-    private val limit = 20
-    private var offsetFactor = 0
-    private var offset = limit * offsetFactor
+class PokemonListViewModel(
+    pokemonRepository: PokemonRepository,
+    val favoritePokemonDao: FavoritePokemonDao
+) : ViewModel() {
 
-    private val _nextPageLoadingStateFlow = MutableStateFlow<LoadingState?>(null)
-    val nextPageLoadingStateFlow = _nextPageLoadingStateFlow.asStateFlow()
+    private var _pokemonItemListFlow = pokemonRepository.getPokemonListPagingFlow()
+        .cachedIn(viewModelScope)
+        .combine(favoritePokemonDao.getAllAsFlow()) { pagingData, favorites ->
+            pagingData.map { pokemonItemWithId ->
+                PokemonItem(
+                    sprite = pokemonItemWithId.smallSprite,
+                    name = pokemonItemWithId.name,
+                    isFavorite = favorites
+                        .firstOrNull { it.name == pokemonItemWithId.name } != null
+                )
+            }
+        }
 
-    private val pokemonItemWithIdListFlow =
-        MutableStateFlow<List<PokemonRepository.PokemonItemWithId>>(
-            emptyList()
-        )
+    val pokemonItemListFlow: Flow<PagingData<PokemonItem>> = _pokemonItemListFlow
 
-    val pokemonItemListFlow = combine(
-        pokemonItemWithIdListFlow,
-        favoritePokemonDao.getAllAsFlow()
-    ) { pokemonList, favorites ->
-        buildPokemonItems(pokemonList, favorites)
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    val commandFlow = CommandFlow<PokemonListScreenUiCommand>(viewModelScope)
 
-    init {
-        loadNextPage()
-    }
+    fun onEvent(event: PokemonListEvent) {
+        when (event) {
+            is PokemonListEvent.OnToggleFavoriteClick -> {
+                toggleFavorite(event.pokemonItem)
+            }
 
-    fun loadNextPage() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val prevList = pokemonItemWithIdListFlow.value
-                val newList =
-                    prevList + pokemonRepository.getPokemonList(limit = limit, offset = offset)
-                pokemonItemWithIdListFlow.value = newList
+            is PokemonListEvent.OnPokemonItemClick -> {
+                commandFlow emit PokemonListScreenUiCommand.NavigateToPokemonInfo(name = event.name)
+            }
 
-                _nextPageLoadingStateFlow.update {
-                    LoadingState(
-                        isLoaded = true,
-                        error = null
-                    )
-                }
-                offsetFactor++
-                offset = limit * offsetFactor
-            } catch (e: IOException) {
-                _nextPageLoadingStateFlow.update {
-                    LoadingState(
-                        isLoaded = false,
-                        error = e
-                    )
-                }
+            is PokemonListEvent.OnError -> {
+                commandFlow emit PokemonListScreenUiCommand.ShowErrorMessage(
+                    message = ""
+                )
             }
         }
     }
@@ -78,16 +64,5 @@ class PokemonListViewModel : ViewModel() {
                 favoritePokemonDao.insert(FavoritePokemon(pokemonItem.name))
             }
         }
-    }
-
-    private fun buildPokemonItems(
-        pokemonList: List<PokemonRepository.PokemonItemWithId>,
-        favorites: List<FavoritePokemon>
-    ) = pokemonList.map { pokemonItemWithId ->
-        PokemonItem(
-            sprite = pokemonItemWithId.smallSprite,
-            name = pokemonItemWithId.name,
-            isFavorite = favorites.firstOrNull { it.name == pokemonItemWithId.name } != null
-        )
     }
 }
